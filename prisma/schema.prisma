@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String           @id @default(uuid())
+  spotifyId        String           @unique
+  displayName      String
+  email            String?
+  imageUrl         String?
+  instruments      UserInstrument[]
+  favourites       FavouriteSong[]
+  topTracksCaches  TopTracksCache[]
+  sentRequests     Friendship[]     @relation("FriendshipRequester")
+  receivedRequests Friendship[]     @relation("FriendshipRecipient")
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum PlayStyle {
+  CHORDS
+  FINGERPICKING
+  STRUMMING
+  LEAD
+  RHYTHM
+  ACCOMPANIMENT
+  FULL_SCORE
+}
+
+model Instrument {
+  id               String            @id @default(uuid())
+  name             String            @unique
+  displayName      String
+  iconEmoji        String
+  userInstruments  UserInstrument[]
+  songDifficulties SongDifficulty[]
+}
+
+model UserInstrument {
+  id           String     @id @default(uuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  instrumentId String
+  instrument   Instrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+  skillLevel   SkillLevel @default(BEGINNER)
+  playStyle    PlayStyle?
+  createdAt    DateTime   @default(now())
+
+  @@unique([userId, instrumentId])
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model Friendship {
+  id          String           @id @default(uuid())
+  requesterId String
+  requester   User             @relation("FriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  recipientId String
+  recipient   User             @relation("FriendshipRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([requesterId, recipientId])
+}
+
+model FavouriteSong {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  spotifyTrackId String
+  trackName      String
+  artistName     String
+  albumName      String?
+  albumImageUrl  String?
+  createdAt      DateTime @default(now())
+
+  @@unique([userId, spotifyTrackId])
+}
+
+model SongDifficulty {
+  id             String     @id @default(uuid())
+  spotifyTrackId String
+  trackName      String
+  artistName     String
+  instrumentId   String
+  instrument     Instrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+  difficulty     Int
+  tabUrl         String?
+  tabProvider    String?
+  tabRating      Float?
+  source         String
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@unique([spotifyTrackId, instrumentId])
+  @@index([spotifyTrackId])
+  @@index([instrumentId, difficulty])
+}
+
+model TopTracksCache {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  timeRange String
+  tracksJson String
+  fetchedAt DateTime @default(now())
+
+  @@unique([userId, timeRange])
+  @@index([userId, timeRange])
+}

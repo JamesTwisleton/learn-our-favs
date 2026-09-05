@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-spotify-green: #1DB954;
+  --color-spotify-green-dark: #1aa34a;
+  --color-spotify-black: #121212;
+  --color-glass: var(--glass-bg);
+  --color-glass-border: var(--glass-border);
+  --color-glass-hover: var(--glass-hover);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --gradient-main: linear-gradient(135deg, #0a0a0a 0%, #0d1117 25%, #101820 50%, #0d1117 75%, #0a0a0a 100%);
+  --foreground: #ededed;
+  --text-70: rgba(255, 255, 255, 0.7);
+  --text-60: rgba(255, 255, 255, 0.6);
+  --text-50: rgba(255, 255, 255, 0.5);
+  --text-40: rgba(255, 255, 255, 0.4);
+  --text-30: rgba(255, 255, 255, 0.3);
+  --text-20: rgba(255, 255, 255, 0.2);
+  --glass-bg: rgba(18, 18, 18, 0.8);
+  --glass-bg-strong: rgba(18, 18, 18, 0.92);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border-strong: rgba(255, 255, 255, 0.2);
+  --glass-hover: rgba(255, 255, 255, 0.12);
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --input-bg-hover: rgba(255, 255, 255, 0.1);
+}
+
+:root.light {
+  --gradient-main: linear-gradient(135deg, #f8faf8 0%, #edf5ed 25%, #e2efe2 50%, #edf5ed 75%, #f8faf8 100%);
+  --foreground: #1a1a1a;
+  --text-70: rgba(0, 0, 0, 0.7);
+  --text-60: rgba(0, 0, 0, 0.6);
+  --text-50: rgba(0, 0, 0, 0.5);
+  --text-40: rgba(0, 0, 0, 0.4);
+  --text-30: rgba(0, 0, 0, 0.3);
+  --text-20: rgba(0, 0, 0, 0.2);
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-bg-strong: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --glass-border-strong: rgba(0, 0, 0, 0.16);
+  --glass-hover: rgba(0, 0, 0, 0.06);
+  --input-bg: rgba(0, 0, 0, 0.04);
+  --input-bg-hover: rgba(0, 0, 0, 0.08);
+}
+
+body {
+  background: var(--gradient-main);
+  background-attachment: fixed;
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  min-height: 100dvh;
+}
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+}
+
+.glass-strong {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid var(--glass-border-strong);
+  border-radius: 1rem;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-30);
+  border-radius: 3px;
+}
+
+.text-primary { color: var(--foreground); }
+.text-muted-70 { color: var(--text-70); }
+.text-muted-60 { color: var(--text-60); }
+.text-muted-50 { color: var(--text-50); }
+.text-muted-40 { color: var(--text-40); }
