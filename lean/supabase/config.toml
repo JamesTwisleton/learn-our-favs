@@ -1,0 +1,42 @@
+# Supabase local config. `supabase start` reads this.
+project_id = "learn-my-faves-lean"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:3000"
+additional_redirect_urls = ["http://127.0.0.1:3000/auth/callback"]
+jwt_expiry = 3600
+enable_signup = true
+# ADR 0003: a second provider is attached only from an authenticated session.
+# Supabase exposes this as manual identity linking.
+enable_manual_linking = true
+
+[auth.email]
+enable_confirmations = false
+
+# Sign-in providers. Google/GitHub shown; add others as needed. Secrets come
+# from the shell environment so they are not committed.
+[auth.external.google]
+enabled = false
+client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"
+
+[auth.external.github]
+enabled = false
+client_id = "env(SUPABASE_AUTH_GITHUB_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GITHUB_SECRET)"

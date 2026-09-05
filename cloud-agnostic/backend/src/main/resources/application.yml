@@ -1,0 +1,65 @@
+spring:
+  application:
+    name: learn-my-faves-backend
+  threads:
+    virtual:
+      enabled: true            # Java 25 virtual threads (PRD §6)
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/lmf}
+    username: ${DATABASE_USER:lmf}
+    password: ${DATABASE_PASSWORD:lmf}
+
+  flyway:
+    enabled: true
+    # The schema is shared with the lean version's shape and lives outside the
+    # jar so both can see it. In a container image it is copied to
+    # classpath:db/migration instead.
+    locations: ${FLYWAY_LOCATIONS:filesystem:../db/migrations}
+    baseline-on-migrate: true
+
+  jpa:
+    hibernate:
+      ddl-auto: validate        # Flyway owns the schema, never Hibernate
+    open-in-view: false
+
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/lmf_notes}
+    redis:
+      url: ${REDIS_URL:redis://localhost:6379}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: ${KAFKA_TOPIC_PREFIX:local}-backend
+      auto-offset-reset: earliest
+
+app:
+  # Provider abstraction (ADR 0009). 'local' binds the docker-compose stack.
+  cloud-provider: ${CLOUD_PROVIDER:local}
+  kafka-topic-prefix: ${KAFKA_TOPIC_PREFIX:local}
+  object-store:
+    endpoint: ${OBJECT_STORE_ENDPOINT:http://localhost:9000}
+    bucket: ${OBJECT_STORE_BUCKET:lmf-media}
+  opensearch:
+    url: ${OPENSEARCH_URL:http://localhost:9200}
+  session-token:
+    signing-key: ${SESSION_TOKEN_SIGNING_KEY:dev-only-change-me}
+  matching:
+    auto-accept: 0.85           # ADR 0013
+    prompt-floor: 0.60
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+logging:
+  level:
+    faves.learn: DEBUG

@@ -1,74 +1,37 @@
-# Learn My Favs
+# Learn My Faves
 
-Discover which of your most-played Spotify songs are easy to play on your favourite instrument. Get tabs, sort by difficulty, and jam with friends.
+Musicians rarely learn the songs they most want to play, because working out
+*which* of their favourites is achievable — and finding someone to play it with —
+is tedious. Learn My Faves connects to a listening account, pulls a user's
+most-played tracks, and lets them form small groups ("bands") around songs that
+more than one member already loves.
 
-## How It Works
+This repository holds **two implementations of the same product**, kept
+side by side on purpose.
 
-See [docs/HOW_IT_WORKS.md](docs/HOW_IT_WORKS.md) for a detailed explanation of the app's architecture, how difficulty scoring works, the Spotify integration, tab link generation, and data flow.
+| Folder | What it is | Status |
+|---|---|---|
+| [`lean/`](./lean) | The version intended to actually run: Next.js + Supabase, one platform, one bill. | Spec only ([PRD](./lean/learn-my-faves-prd-lean.md)) |
+| [`cloud-agnostic/`](./cloud-agnostic) | The deliberately over-engineered version: dual-cloud IaC, event-driven services, federated identity, orchestration, observability. Built to exercise a specific set of engineering practices end to end. | In progress — foundation |
 
-## Local Development
+The two share a domain model and a set of product-and-safety decisions on
+purpose, so the lean version is not a dead end. Where the `cloud-agnostic`
+version is heavier than the problem demands, [its tradeoff register](./cloud-agnostic/docs/learn-my-faves-prd-demonstration.md#12-tradeoff-register)
+says so plainly.
 
-### Prerequisites
+**New here? Read [`docs/UNDERSTANDING-THIS-REPO.md`](./docs/UNDERSTANDING-THIS-REPO.md)** —
+the guided tour of both implementations and the decisions they share.
 
-- Node.js 20+
-- Docker (for PostgreSQL)
-- A [Spotify Developer](https://developer.spotify.com/dashboard) app with:
-  - Redirect URI: `http://127.0.0.1:3000/api/auth/callback/spotify`
-  - Web API enabled
+## History
 
-### Setup
+An earlier prototype (Next.js + Prisma + NextAuth + Fly.io) lived at the repo
+root and was taken offline for cost. It has been removed on this branch; the
+parts worth keeping are catalogued in
+[`cloud-agnostic/docs/SALVAGE.md`](./cloud-agnostic/docs/SALVAGE.md).
 
-1. **Start the database:**
+## Where to start reading
 
-```bash
-docker compose up -d
-```
-
-2. **Install dependencies:**
-
-```bash
-npm install
-```
-
-3. **Configure environment variables:**
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your values:
-
-```
-DATABASE_URL="postgresql://learnmyfavs:learnmyfavs@localhost:5432/learnmyfavs?schema=public"
-SPOTIFY_CLIENT_ID="your-spotify-client-id"
-SPOTIFY_CLIENT_SECRET="your-spotify-client-secret"
-NEXTAUTH_SECRET="generate-with: openssl rand -base64 32"
-NEXTAUTH_URL="http://127.0.0.1:3000"
-```
-
-4. **Run database migrations and seed:**
-
-```bash
-npx prisma migrate dev
-npx prisma db seed
-```
-
-5. **Start the dev server:**
-
-```bash
-npm run dev
-```
-
-The app will be running at [http://127.0.0.1:3000](http://127.0.0.1:3000).
-
-### Running Tests
-
-```bash
-npm test                                    # unit tests
-npm run test:e2e -- --project=chromium      # e2e tests (requires npx playwright install)
-npm run lint                                # linting
-```
-
-## Deployment
-
-Deployed to [Fly.io](https://fly.io) via GitHub Actions. Pushes to `main` trigger production deploys. Pull requests get ephemeral preview environments.
+- Product: `lean/learn-my-faves-prd-lean.md` sections *Product* and *Stack*.
+- Architecture rationale: `cloud-agnostic/docs/learn-my-faves-prd-demonstration.md`.
+- Decisions already closed: `cloud-agnostic/docs/adr/`.
+- Running the `cloud-agnostic` stack locally: `cloud-agnostic/README.md`.

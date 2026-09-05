@@ -1,0 +1,29 @@
+[project]
+name = "lmf-workers"
+version = "0.1.0"
+description = "Kafka consumers for the cloud-agnostic Learn My Faves architecture"
+requires-python = ">=3.12"
+dependencies = [
+    "confluent-kafka>=2.5",
+    "structlog>=24.4",
+]
+
+[project.optional-dependencies]
+media = ["ffmpeg-python>=0.2"]   # the media worker orchestrates ffmpeg (PRD §6)
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+media-worker = "lmf_workers.media:main"
+ingestion-worker = "lmf_workers.ingestion:main"
+overlap-worker = "lmf_workers.overlap:main"
+notification-worker = "lmf_workers.notification:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lmf_workers"]
+
+[tool.ruff]
+line-length = 100

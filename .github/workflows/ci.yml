@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+    branches: [main, reimplementation]
+  pull_request:
+
+jobs:
+  lean:
+    name: lean — build + test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lean
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: lean/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
+          SUPABASE_SERVICE_ROLE_KEY: ci-placeholder
+
+  lean-migrations:
+    name: lean — migrations apply
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase db start
+        working-directory: lean
+      - run: supabase db reset --no-seed && supabase db reset
+        working-directory: lean
+
+  cloud-agnostic-schema:
+    name: cloud-agnostic — schema on Postgres
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: lmf
+          POSTGRES_PASSWORD: lmf
+          POSTGRES_DB: lmf
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U lmf" --health-interval 5s
+          --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Flyway migrate
+        run: |
+          docker run --rm --network host \
+            -v "$PWD/cloud-agnostic/db/migrations:/flyway/sql:ro" \
+            flyway/flyway:10-alpine \
+            -url=jdbc:postgresql://localhost:5432/lmf -user=lmf -password=lmf \
+            -connectRetries=10 migrate
+      # TODO: a second job running the same migrations against the Spanner
+      # PostgreSQL emulator, to catch dialect drift (ADR 0009).
+
+  cloud-agnostic-backend:
+    name: cloud-agnostic — backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cloud-agnostic/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+          cache: maven
+      - run: mvn -B -q verify
+
+  cloud-agnostic-frontend:
+    name: cloud-agnostic — frontend build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cloud-agnostic/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: cloud-agnostic/frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  workers:
+    name: cloud-agnostic — workers lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cloud-agnostic/workers
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: ruff check .
+      - run: python -m compileall -q src
