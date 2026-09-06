@@ -31,4 +31,4 @@ ownership auto-transfers when an owner departs. A role encoded in a JWT is:
 - The lean version reaches the same outcome with Postgres row-level security
   policies instead of an application-layer check.
 - Platform scope (`is_staff`) *is* in the token because it is rare, slow-moving,
-  and administered out of band — see ADR 0005.
+  and administered out of band — see [ADR 0005](0005-band-scope-vs-platform-scope.md).

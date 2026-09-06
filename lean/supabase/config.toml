@@ -1,5 +1,5 @@
 # Supabase local config. `supabase start` reads this.
-project_id = "learn-my-faves-lean"
+project_id = "learn-our-favs-lean"
 
 [api]
 enabled = true

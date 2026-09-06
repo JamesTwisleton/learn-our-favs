@@ -26,6 +26,32 @@ video:
 3. Score = **trigram (Dice) coefficient** over character trigrams of the two
    normalised strings.
 
+### Trigram Similarity (Dice Coefficient)
+
+A **trigram** is a sequence of 3 consecutive characters. For example, the string
+`"hello"` yields trigrams: `"hel"`, `"ell"`, `"llo"`.
+
+The **Dice coefficient** measures overlap between two sets. For trigram matching:
+
+```
+Dice(A, B) = 2 × |A ∩ B| / (|A| + |B|)
+```
+
+Where:
+- `A` = set of trigrams from string 1
+- `B` = set of trigrams from string 2
+- `∩` = intersection (shared items)
+- `| |` = cardinality (count/size of a set)
+- `|A ∩ B|` = how many trigrams appear in both sets
+- `|A| + |B|` = total trigrams across both sets
+- Result is in `[0, 1]`: 1 = identical, 0 = no overlap
+
+**Example:** `"hello world"` vs `"helo world"` (typo):
+- Trigrams A: `{hel, ell, llo, lo , o w, wor, orl, rld}`
+- Trigrams B: `{hel, elo, lo , o w, wor, orl, rld}` (8 vs 8)
+- Intersection: 7 shared
+- Score: `2 × 7 / 16 = 0.875` → auto-accept
+
 Bands:
 
 | Score | Action |
@@ -40,8 +66,10 @@ live in one config object, not scattered as literals.
 ## Consequences
 
 - A pending match does not appear in the band pool (PRD §5).
-- The normaliser's noise-token list is the seed carried over from the old
-  prototype's `songsterr.ts` (`SALVAGE.md`), extended.
+- The normaliser's **noise-token list** (words stripped during normalization:
+  `official video`, `official audio`, `lyrics`, `lyric video`, `ft`, `feat`,
+  `remastered`, `hd`, `4k`, `live`, `audio`, bracketed years) is seeded from the
+  old prototype's `songsterr.ts` (`SALVAGE.md`) and extended as edge cases arise.
 - Trigram similarity is cheap and needs no external dependency; it is
   implemented in the backend and unit-tested against a fixture set of known
   pairs.

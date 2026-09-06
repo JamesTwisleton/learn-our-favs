@@ -20,11 +20,12 @@ Postgres 16) **and** the Spanner PostgreSQL interface. The intersection:
 | **Integers are `bigint`.** No `integer` / `int4`. | Spanner PG integers are 64-bit; staying on `bigint` avoids surprises. |
 | **`timestamptz` with `DEFAULT now()`**; timestamps are always timezone-aware. | Supported on both. |
 | **`jsonb`** for structured payload columns. | Supported on both (Spanner via PGAdapter). |
-| No partial indexes, no expression indexes, no `INCLUDE`. Plain b-tree indexes and unique constraints only. | Spanner index feature set is narrower. |
-| Aggregates limited to `count`, `count(distinct …)`, `sum`, `avg`, `min`, `max`. No ordered-set aggregates (`percentile_cont … WITHIN GROUP`). | Median for difficulty (ADR 0011) is therefore computed in the service layer, not in `song_difficulty_v`. |
+| No partial indexes, no expression indexes, no `INCLUDE`. Plain b-tree indexes and unique constraints only. | Spanner index feature set is narrower. Partial indexes (indexes with a `WHERE` clause, e.g., only index active members) and expression indexes (indexes on computed columns, e.g., `LOWER(name)`) are not supported. |
+| Aggregates limited to `count`, `count(distinct …)`, `sum`, `avg`, `min`, `max`. No ordered-set aggregates like `percentile_cont … WITHIN GROUP`. | `percentile_cont` computes percentiles (e.g., median as the 50th percentile) — `WITHIN GROUP (ORDER BY col)` orders rows for the calculation. Spanner doesn't support this; median for difficulty (ADR 0011) is computed in the service layer instead, not in `song_difficulty_v`. |
 
 A CI job runs the full migration set against the Spanner PGAdapter emulator to
-catch drift. Local dev and Testcontainers use plain PostgreSQL 16.
+catch drift (schema divergence: migrations that work on RDS but break on Spanner,
+or vice versa). Local dev and Testcontainers use plain PostgreSQL 16.
 
 ## What lives elsewhere, not here
 
@@ -40,18 +41,18 @@ catch drift. Local dev and Testcontainers use plain PostgreSQL 16.
 
 ## Migration index
 
-| Version | Adds |
-|---|---|
-| V1 | `users`, `identities`, `spotify_links` |
-| V2 | `instruments`, `instrument_proficiency` |
-| V3 | `bands`, `band_memberships`, `join_requests` |
-| V4 | `songs`, `song_sources`, `song_match_prompts`, `song_likes` |
-| V5 | `learning_state`, `note_docs`, `band_song_state` |
-| V6 | `difficulty_ratings` |
-| V7 | `recordings`, `timestamped_comments` |
-| V8 | `outbox`, `processed_events` |
-| V9 | `audit_log` |
-| V10 | views: `band_pool_v`, `song_difficulty_v` |
+| Version | Adds | Purpose |
+|---|---|---|
+| V1 | `users`, `identities`, `spotify_links` | User accounts and OAuth identities |
+| V2 | `instruments`, `instrument_proficiency` | Band member skills and proficiency levels |
+| V3 | `bands`, `band_memberships`, `join_requests` | Band groups, membership, and invitations |
+| V4 | `songs`, `song_sources`, `song_match_prompts`, `song_likes` | Catalogue (songs and URIs), match prompts for song disambiguation, member votes |
+| V5 | `learning_state`, `note_docs`, `band_song_state` | Learning progress, band notes (metadata only; content in Mongo), and song state per band |
+| V6 | `difficulty_ratings` | Member difficulty votes per song |
+| V7 | `recordings`, `timestamped_comments` | Session recordings and in-session comments |
+| V8 | `outbox`, `processed_events` | Transactional outbox for Kafka, event processing state |
+| V9 | `audit_log` | GDPR-auditable record of member departures and data erasure |
+| V10 | views: `band_pool_v`, `song_difficulty_v` | Pool membership and difficulty aggregates (ADR 0007, ADR 0011) |
 
 Seed data (instruments, slug word list) is applied separately from
 `db/seed/` — it is not schema.

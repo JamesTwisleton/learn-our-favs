@@ -1,4 +1,4 @@
-# Learn My Faves — Lean Production PRD
+# Learn Our Favs — Lean Production PRD
 
 **Author:** James Twisleton
 **Version:** 0.1 (draft)
@@ -8,19 +8,13 @@
 
 ## What this document is
 
-The same product as `learn-my-faves-prd-demonstration.md`, specified as I would build it if the only goal were shipping something real that people use and that I can afford to keep online.
+This is the lean specification — the version I would actually build if the only goal were shipping something real that people use and that I can afford to keep online.
 
-It is shorter because the product is small. That is the point.
+**The product is identical to the demonstration version.** It is specified in [`../docs/PRODUCT.md`](../docs/PRODUCT.md) at the repo root; read that first.
+
+This document describes the lean *stack* and *implementation choices* — why certain decisions from the heavy version are dropped and what replaces them. It is shorter because the implementation is small. That is the point.
 
 The previous deployment ran on Fly.io and was taken offline because it cost more than a hobby project justifies. Cost control is a first-class requirement here, not an afterthought.
-
----
-
-## Product
-
-Unchanged from the demonstration spec. Sign in, connect Spotify, declare your instruments, see your most-played tracks, form a band via an invite link, and work through songs more than one of you already loves.
-
-**Same scope exclusions:** no automatic difficulty rating, and the app hosts no tabs or sheet music — users paste their own reference material into band notes.
 
 ---
 
@@ -125,9 +119,9 @@ Resolved in lockstep with the demonstration version — see
    audio-only with a duration cap; video only on request. (The demonstration
    version runs uncapped with cost monitoring; that is the one deliberate
    divergence between the two.)
-2. **YouTube in v1 at all?** — Link-paste only, no API search. ADR 0010.
-3. **Difficulty — parked, or user-rated?** — User-rated. ADR 0011.
+2. **YouTube in v1 at all?** — Link-paste only, no API search. [ADR 0010](../cloud-agnostic/docs/adr/0010-youtube-link-paste-only-v1.md).
+3. **Difficulty — parked, or user-rated?** — User-rated. [ADR 0011](../cloud-agnostic/docs/adr/0011-user-rated-difficulty.md).
 4. **Note authorship when a member leaves a band.** — Keep content, relabel the
-   author "Former member". ADR 0014.
+   author "Former member". [ADR 0014](../cloud-agnostic/docs/adr/0014-note-authorship-on-member-departure.md).
 5. **Log retention period.** — App logs 30 days; audit/security logs 90 days.
-   ADR 0015.
+   [ADR 0015](../cloud-agnostic/docs/adr/0015-log-retention-periods.md).

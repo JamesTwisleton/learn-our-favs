@@ -24,9 +24,9 @@ v1 ships **user-submitted difficulty ratings, aggregated on read**:
 - `difficulty_rating` keyed on `(user_id, song_id, instrument_id)`, integer
   1–5, optional short note.
 - The displayed difficulty is the aggregate (median, with rating count shown) —
-  computed on read, like the band pool (ADR 0007). No stored `songs.difficulty`.
+  computed on read, like the band pool ([ADR 0007](0007-overlap-computed-on-read.md)). No stored `songs.difficulty`.
 - A user is prompted to rate a song when they move its learning state to
-  `can_play` (ADR 0006) — the point at which they actually know.
+  `can_play` ([ADR 0006](0006-learning-state-per-user-song-instrument.md)) — the point at which they actually know.
 - Sparse data is shown honestly: "2 ratings" not a false-precision average.
 
 Non-goal for v1: any algorithmic or ML difficulty prediction. The rating table

@@ -21,7 +21,7 @@ Two distinct purposes:
 | Log class | Retention | Store |
 |---|---|---|
 | Application / operational | **30 days**, then deleted | CloudWatch / Google Cloud Logging, retention set by Terraform |
-| Audit / security | **90 days**, then deleted | Separate log group / sink, write-restricted |
+| Audit / security | **90 days**, then deleted | Separate log group (AWS) or sink (GCP: dedicated routing destination), write-restricted |
 | Datadog (dashboards, cross-cloud) | 15 days indexed, matching its default | Datadog |
 
 - The two classes are separated at emission — audit events go through a
@@ -36,5 +36,5 @@ Two distinct purposes:
 - An incident older than 90 days cannot be reconstructed from logs. Accepted.
 - Audit logs are covered by the same erasure obligations, but user IDs (not
   personal data) keep them low-risk — same principle as Kafka payloads
-  (ADR 0017, PRD §10).
+  ([ADR 0017](0017-claim-check-for-media-events.md), PRD §10).
 - Retention values live in Terraform variables, one place to change.

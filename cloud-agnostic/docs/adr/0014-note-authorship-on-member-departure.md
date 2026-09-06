@@ -25,8 +25,9 @@ On departure (voluntary leave or removal):
   the band.
 - **Authorship is anonymised**: every note/version/edit attributed to that user
   in that band has its author reference replaced with a stable sentinel
-  rendered as **"Former member"**. Personal identifiers (name, avatar, user ID
-  link) are dropped from those records.
+  (a fixed placeholder value **"Former member"** that applies to all departed
+  members, not a per-user identifier). Personal identifiers (name, avatar, user
+  ID link) are dropped from those records.
 - This is scoped to the band being left. The user's identity and their notes in
   *other* bands are untouched.
 - A full account erasure (GDPR) applies the same anonymisation across all bands.
@@ -38,4 +39,6 @@ On departure (voluntary leave or removal):
 - Requires an anonymisation routine that rewrites author refs in the note store,
   invoked from both the leave-band and delete-account paths.
 - "Former member" is one sentinel per band, not per departed user — we do not
-  keep a shadow mapping, because that would defeat the anonymisation.
+  keep a shadow mapping (a hidden record linking "Former member" back to the
+  original user), because that would allow reverse-engineering the anonymisation
+  and defeating the privacy goal.

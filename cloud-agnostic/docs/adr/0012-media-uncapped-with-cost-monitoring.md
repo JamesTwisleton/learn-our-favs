@@ -23,9 +23,10 @@ cap, no audio-only mode. Control is via observability:
 - Every media resource tagged by feature so egress is attributable
   (PRD §10).
 - Datadog dashboard for media egress, separate from everything else.
-- Billing alerts on both clouds with a hard threshold that pages.
+- Billing alerts on both clouds with a hard threshold that pages (firm cost
+  ceiling that automatically alerts the on-call engineer when exceeded).
 - A documented kill switch: a feature flag that disables uploads and, if
-  necessary, media serving, flipped from config.
+  necessary, media serving, toggled by changing config (no code deployment needed).
 
 The **lean version diverges**: it ships audio-only with a duration cap, because
 its whole premise is affordability. This is the one deliberate place the two

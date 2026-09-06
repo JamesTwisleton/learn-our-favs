@@ -5,7 +5,7 @@ export function Nav({ displayName }: { displayName: string }) {
     <div className="row" style={{ justifyContent: "space-between", marginBottom: 20 }}>
       <div className="row" style={{ gap: 16 }}>
         <Link href="/dashboard" style={{ fontWeight: 700, textDecoration: "none" }}>
-          Learn My Faves
+          Learn Our Favs
         </Link>
         <Link href="/bands" className="muted" style={{ textDecoration: "none" }}>
           Bands

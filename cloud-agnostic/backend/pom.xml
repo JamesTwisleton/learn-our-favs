@@ -12,10 +12,10 @@
     </parent>
 
     <groupId>faves.learn</groupId>
-    <artifactId>learn-my-faves-backend</artifactId>
+    <artifactId>learn-our-favs-backend</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <name>learn-my-faves-backend</name>
-    <description>Cloud-agnostic Learn My Faves API (PRD demonstration version)</description>
+    <name>learn-our-favs-backend</name>
+    <description>Cloud-agnostic Learn Our Favs API (PRD demonstration version)</description>
 
     <properties>
         <!-- Java 25, virtual threads (PRD §6). -->

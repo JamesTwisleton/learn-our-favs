@@ -28,5 +28,5 @@ becomes deleting *any* band.
 
 - A band owner has zero visibility into other bands.
 - Staff act through the portal, not through band endpoints — staff actions are
-  audit-logged separately (ADR 0015).
+  audit-logged separately ([ADR 0015](0015-log-retention-periods.md)).
 - Tests assert that a band `owner` calling an admin-portal route gets 403.

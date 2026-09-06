@@ -22,7 +22,8 @@ demo).
 
 - Client code never generates slugs — it cannot enforce uniqueness and cannot be
   trusted to screen words.
-- ~8 million combinations is ample headroom; retry-on-conflict handles the
-  birthday-problem tail.
-- Adding words is a reviewed PR against the list, which keeps the screening
-  human.
+- ~8 million combinations is ample headroom; the birthday problem means
+  collisions happen sooner than expected, but retry-on-conflict (regenerate on
+  unique constraint violation) handles those tail-end collision cases.
+- Adding words requires a reviewed PR against the word list, which keeps a human
+  in the screening loop — no automated additions.

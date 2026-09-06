@@ -30,7 +30,7 @@ Revisit if we obtain a raised quota or move to a paid tier.
 - The YouTube experience is deliberately degraded — "paste a link" is more
   friction than "search". Honest tradeoff; the alternative is an unreliable
   feature.
-- Cross-provider matching (ADR 0013) still applies to pasted YouTube videos
+- Cross-provider matching ([ADR 0013](0013-cross-provider-match-thresholds.md)) still applies to pasted YouTube videos
   against Spotify likes.
 - Quota headroom is large enough that a genuine spike stays inside the free
   tier.

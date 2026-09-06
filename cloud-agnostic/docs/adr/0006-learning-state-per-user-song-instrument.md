@@ -13,7 +13,7 @@ state.
 
 `LEARNING_STATE` is keyed on `(user_id, song_id, instrument_id)` with a status
 enum `want | learning | can_play`. There is no song-level difficulty column;
-difficulty is a separate, aggregated, user-submitted signal (ADR 0011) and is
+difficulty is a separate, aggregated, user-submitted signal ([ADR 0011](0011-user-rated-difficulty.md)) and is
 also per instrument.
 
 ## Consequences

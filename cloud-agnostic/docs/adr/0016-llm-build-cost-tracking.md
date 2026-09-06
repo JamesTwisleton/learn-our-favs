@@ -33,12 +33,22 @@ estimate was left "⬥ to be filled in before implementation begins".
 Assumptions: solo build over ~6–8 weeks part-time; prices as of 2026-09;
 estimate excludes this foundation session.
 
-**Tracking:** `docs/llm-cost-log.md` — one line per working session
-(date, phase, tier, approx cost, note). Totalled per phase. The
+**Tracking:** Programmatic. Each Claude API call logs:
+- timestamp, phase tag, tier classification, model used, input tokens, output
+  tokens, cost (GBP), task context.
+
+Logs are written to `docs/llm-cost-log.jsonl` (one JSON record per call). A
+summary script aggregates by phase and tier, comparing estimate vs actual. The
+tally is human-readable and updated before each phase completes. The
 estimate-vs-actual comparison is written up at the end; being wrong is an
 acceptable and interesting outcome.
 
 ## Consequences
 
-- The log is a manual discipline; if it lapses, that is itself a finding.
-- The number is small enough that the *practice* is the artefact, not the spend.
+- Each API call is captured automatically; no manual discipline needed. The log
+  is immutable and exact (source: billing API, not estimates).
+- The estimate is small enough (280 GBP) that the *practice* of tracking is the
+  real artefact — the learning from "how did we actually spend time?" matters
+  more than hitting an exact number.
+- Requires integration with the Anthropic SDK to extract cost/token data from
+  each API call and tag it with phase/tier context.

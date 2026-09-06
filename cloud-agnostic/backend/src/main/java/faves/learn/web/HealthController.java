@@ -24,7 +24,7 @@ public class HealthController {
     public Map<String, Object> health() {
         return Map.of(
                 "status", "ok",
-                "service", "learn-my-faves-backend",
+                "service", "learn-our-favs-backend",
                 "cloudProvider", props.cloudProvider(),
                 "kafkaTopicPrefix", props.kafkaTopicPrefix());
     }

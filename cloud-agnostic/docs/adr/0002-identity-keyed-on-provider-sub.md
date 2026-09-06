@@ -1,6 +1,6 @@
 # ADR 0002 — Identities keyed on (provider, provider_user_id), never email
 
-**Status:** Accepted · 2026-09-05 · Survives in both the lean and demonstration versions
+**Status:** Accepted · 2026-09-05 · Survives in both versions
 
 ## Context
 
@@ -27,6 +27,6 @@ and is **never** part of a lookup, join, or uniqueness constraint.
 
 - Changing your Google email never affects sign-in.
 - A provider that gives us no email is fully supported.
-- Account linking cannot lean on email matching — see ADR 0003, which is the
+- Account linking cannot lean on email matching — see [ADR 0003](0003-no-auto-linking-by-email.md), which is the
   security-critical half of this decision.
 - Display code must tolerate a null email.

@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Entry point for the cloud-agnostic Learn My Faves API.
+ * Entry point for the cloud-agnostic Learn Our Favs API.
  *
  * <p>The application mints its own session token and never lets a provider
  * token reach the domain layer (PRD §3.2). Cloud-specific behaviour —
@@ -13,9 +13,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * setting (ADR 0009).
  */
 @SpringBootApplication
-public class LearnMyFavesApplication {
+public class LearnOurFavsApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(LearnMyFavesApplication.class, args);
+        SpringApplication.run(LearnOurFavsApplication.class, args);
     }
 }

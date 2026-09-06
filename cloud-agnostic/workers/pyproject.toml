@@ -1,7 +1,7 @@
 [project]
 name = "lmf-workers"
 version = "0.1.0"
-description = "Kafka consumers for the cloud-agnostic Learn My Faves architecture"
+description = "Kafka consumers for the cloud-agnostic Learn Our Favs architecture"
 requires-python = ">=3.12"
 dependencies = [
     "confluent-kafka>=2.5",

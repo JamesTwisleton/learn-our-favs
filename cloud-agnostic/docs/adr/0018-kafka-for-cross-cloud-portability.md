@@ -18,12 +18,17 @@ delivery semantics, and the ops model would all differ between deployments.
 EKS and GKE. One producer API, one consumer API, one set of delivery semantics,
 regardless of cloud.
 
-- Topics: `media.uploaded`, `catalogue.ingest.requested`,
-  `band.overlap.invalidated`, `notification.raised` (PRD §8).
+- Topics (PRD §8):
+  - `media.uploaded` — recording uploaded, ready for transcode/thumbnail worker
+  - `catalogue.ingest.requested` — new song added to band catalogue, ready for
+    metadata enrichment
+  - `band.overlap.invalidated` — band membership or threshold changed; listeners
+    can refresh cached pool state
+  - `notification.raised` — event ready to deliver (email, push, etc.)
 - Non-production: topic names and consumer group IDs are **prefixed by branch**
   so PR previews sharing the dev cluster do not steal each other's messages
   (PRD §9).
-- Claim-check for media (ADR 0017); user IDs only, no personal data (PRD §10).
+- Claim-check for media ([ADR 0017](0017-claim-check-for-media-events.md)); user IDs only, no personal data (PRD §10).
 
 ## Consequences
 

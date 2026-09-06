@@ -12,7 +12,7 @@ export default async function LandingPage() {
 
   return (
     <>
-      <h1>Learn My Faves</h1>
+      <h1>Learn Our Favs</h1>
       <p className="muted">
         Connect Spotify, tell us what you play, and form small bands around the
         songs more than one of you already loves.

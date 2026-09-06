@@ -12,7 +12,7 @@ That rule is an account-takeover vulnerability. An attacker:
 
 1. Creates a Facebook account with the victim's email address as its profile
    email.
-2. Signs in to Learn My Faves with it.
+2. Signs in to Learn Our Favs with it.
 3. The app sees a matching email and attaches the new identity to the victim's
    account.
 4. The attacker now has full access — bands, notes, linked Spotify tokens — with

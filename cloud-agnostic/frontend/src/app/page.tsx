@@ -15,7 +15,7 @@ export default async function Home() {
   const health = await getBackendHealth();
   return (
     <>
-      <h1>Learn My Faves</h1>
+      <h1>Learn Our Favs</h1>
       <p style={{ color: "#a0a0a0" }}>
         Cloud-agnostic demonstration architecture. This frontend is a thin client
         of the Java 25 Spring Boot API.

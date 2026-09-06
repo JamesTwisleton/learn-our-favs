@@ -5,9 +5,9 @@ backtracking. ~1 hour end to end.
 
 ## 1. The product and the honesty (20 min)
 
-1. `learn-my-faves-prd-demonstration.md` §1–§3 — the product and the two flows
+1. `learn-our-favs-prd-demonstration.md` §1–§3 — the product and the two flows
    that carry it (band pool overlap, identity linking).
-2. `learn-my-faves-prd-demonstration.md` §12 — the tradeoff register. Read this
+2. `learn-our-favs-prd-demonstration.md` §12 — the tradeoff register. Read this
    early so every heavy choice later has context.
 3. `docs/adr/README.md` — the index. Skim the one-liners.
 
@@ -37,7 +37,7 @@ Then the code that implements them:
 
 ## 4. Portability (10 min)
 
-- `learn-my-faves-prd-demonstration.md` §7.
+- `learn-our-favs-prd-demonstration.md` §7.
 - ADR 0009 (state inside both clouds), 0018 (Kafka), 0017 (claim-check).
 - `backend/.../platform/ports/package-info.java` — the rule that keeps the
   abstraction honest.
@@ -45,7 +45,7 @@ Then the code that implements them:
 
 ## 5. Events (5 min)
 
-- `learn-my-faves-prd-demonstration.md` §8.
+- `learn-our-favs-prd-demonstration.md` §8.
 - `backend/.../messaging/Topics.java` and `workers/README.md`.
 - One worker end to end: `workers/src/lmf_workers/media.py` +
   `workers/src/lmf_workers/consumer.py`.

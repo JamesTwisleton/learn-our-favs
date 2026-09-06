@@ -1,6 +1,6 @@
 # ADR 0017 — Media events carry an object key, not bytes (claim-check pattern)
 
-**Status:** Accepted · 2026-09-05
+**Status:** Accepted · 2026-09-05 · Demonstration version only
 
 ## Context
 
@@ -15,9 +15,15 @@ economics, and couples broker sizing to file sizes.
 
 ## Decision
 
-**Claim-check pattern.** The client uploads the file **directly to object
-storage** (presigned PUT to S3 / GCS). Only once the upload completes does the
-backend publish `media.uploaded`, and the event body is small:
+**Claim-check pattern:** Instead of sending large payloads through a message
+broker (anti-pattern), store the payload in durable external storage and send
+only a reference/receipt ("claim check") through the broker. Like a coat-check
+ticket: you leave the coat (file) with the attendant (object store), get a
+ticket (object key), and pass the ticket around; the file stays safe elsewhere.
+
+The client uploads the file **directly to object storage** (presigned PUT to S3 /
+GCS). Only once the upload completes does the backend publish `media.uploaded`,
+and the event body is small:
 
 ```
 { recording_id, band_id, uploader_user_id, object_key, content_type,

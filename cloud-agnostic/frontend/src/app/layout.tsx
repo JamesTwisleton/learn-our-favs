@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Learn My Faves — cloud-agnostic",
+  title: "Learn Our Favs — cloud-agnostic",
   description: "Frontend for the demonstration architecture.",
 };
 

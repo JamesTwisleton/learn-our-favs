@@ -1,7 +1,7 @@
-# Learn My Faves — lean version
+# Learn Our Favs — lean version
 
 Next.js (App Router) + Supabase. One platform, one bill. This is the version
-meant to actually run for real users. Spec: [`learn-my-faves-prd-lean.md`](./learn-my-faves-prd-lean.md).
+meant to actually run for real users. Spec: [`learn-our-favs-prd-lean.md`](./learn-our-favs-prd-lean.md).
 
 For the *why* behind each decision, read [`docs/`](./docs) — start with
 [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md).

@@ -27,9 +27,9 @@ lean version is not a dead end and the heavy version is not a different product.
 
 ### Everyone (30 min)
 
-1. `lean/learn-my-faves-prd-lean.md` — the short PRD. Product + stack + what was
+1. `lean/learn-our-favs-prd-lean.md` — the short PRD. Product + stack + what was
    dropped and why.
-2. `cloud-agnostic/docs/learn-my-faves-prd-demonstration.md` §12 — the tradeoff
+2. `cloud-agnostic/docs/learn-our-favs-prd-demonstration.md` §12 — the tradeoff
    register. The honest "isn't this over-engineered? yes, here's what I'd ship".
 3. `cloud-agnostic/docs/adr/README.md` — the decision index.
 

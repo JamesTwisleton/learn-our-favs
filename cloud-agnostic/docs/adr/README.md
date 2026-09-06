@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-Append-only, numbered, normal prose. Format and rules: ADR 0001.
+Append-only, numbered, normal prose. Format and rules: [ADR 0001](./0001-record-architecture-decisions.md).
 
 | # | Title | Closes ⬥ | Both versions? |
 |---|---|---|---|

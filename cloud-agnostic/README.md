@@ -1,11 +1,11 @@
-# Learn My Faves — cloud-agnostic version
+# Learn Our Favs — cloud-agnostic version
 
 The deliberately over-engineered implementation. Dual-cloud IaC, event-driven
 services, federated identity, orchestration, observability. Built to exercise
 those practices end to end — **not** the version you would ship (that is
 [`../lean`](../lean)).
 
-- **Why each piece exists:** [`docs/learn-my-faves-prd-demonstration.md`](./docs/learn-my-faves-prd-demonstration.md)
+- **Why each piece exists:** [`docs/learn-our-favs-prd-demonstration.md`](./docs/learn-our-favs-prd-demonstration.md)
 - **Decisions, closed:** [`docs/adr/`](./docs/adr)
 - **Where to start reading the code:** [`docs/READ-IN-THIS-ORDER.md`](./docs/READ-IN-THIS-ORDER.md)
 - **How it all fits together:** [`docs/SYSTEM-WALKTHROUGH.md`](./docs/SYSTEM-WALKTHROUGH.md)

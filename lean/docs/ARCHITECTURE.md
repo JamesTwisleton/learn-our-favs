@@ -46,4 +46,4 @@ See [`docs/AUTHORISATION.md`](./AUTHORISATION.md).
 
 Kubernetes, Terraform, Kafka, Spanner, MongoDB, OpenSearch, a separate Java
 service, Datadog. Each is replaced by a Supabase or Vercel primitive, or by
-nothing. The reasoning is in `learn-my-faves-prd-lean.md` → "What is dropped".
+nothing. The reasoning is in `learn-our-favs-prd-lean.md` → "What is dropped".

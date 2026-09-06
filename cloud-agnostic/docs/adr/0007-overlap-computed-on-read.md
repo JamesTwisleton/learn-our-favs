@@ -16,10 +16,12 @@ song from `song_like` joined to current `band_membership`, filter to
 `count >= band.overlap_threshold`. In the demonstration version this is a SQL
 view (`band_pool_v`); the read path hits it directly.
 
-`band.overlap.invalidated` is published on membership or threshold change, but
-only so consumers (notifications, caches, the overlap worker for
-denormalised read models if we ever add them) can react — **not** because the
-pool itself needs rebuilding.
+A `band.overlap.invalidated` domain event is published (broadcast to downstream
+consumers) whenever band membership or the overlap threshold changes. This event
+exists **only** to notify external systems (notifications, caches, the overlap
+worker for denormalised read models if we ever add them) so they can refresh
+their own snapshots — **not** because the pool itself needs rebuilding, since
+it's always fresh on the next query.
 
 ## Consequences
 
@@ -27,6 +29,6 @@ pool itself needs rebuilding.
   every member and is intended behaviour, not a glitch.
 - No consistency bugs between a stored pool and the underlying likes.
 - The view must stay within the RDS ∩ Spanner SQL dialect intersection
-  (ADR 0009) — `count(distinct …)` and a `having` clause are fine in both.
+  ([ADR 0009](0009-state-inside-both-clouds.md)) — `count(distinct …)` and a `having` clause are fine in both.
 - If read volume ever justifies it, a cached/denormalised projection can be
   added *behind* the same read interface without changing this decision.

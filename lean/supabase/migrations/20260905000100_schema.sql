@@ -1,4 +1,4 @@
--- Learn My Faves — lean schema.
+-- Learn Our Favs — lean schema.
 -- Portable Postgres (RDS-compatible): native uuid, text + CHECK for enums,
 -- timestamptz everywhere. RLS and functions are in the next migration.
 

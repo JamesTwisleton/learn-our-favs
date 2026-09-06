@@ -9,7 +9,7 @@
 #
 #   docker compose up -d          start everything
 #   docker compose run --rm flyway migrate   apply db/migrations
-name: learn-my-faves-cloud-agnostic
+name: learn-our-favs-cloud-agnostic
 
 services:
   postgres:
