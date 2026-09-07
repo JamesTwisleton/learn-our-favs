@@ -1,22 +1,33 @@
 import Link from "next/link";
 
-export function Nav({ displayName }: { displayName: string }) {
+export function Nav({
+  displayName,
+  avatarUrl,
+}: {
+  displayName: string;
+  avatarUrl?: string | null;
+}) {
+  const firstName = displayName.split(" ")[0];
   return (
-    <div className="row" style={{ justifyContent: "space-between", marginBottom: 20 }}>
-      <div className="row" style={{ gap: 16 }}>
-        <Link href="/dashboard" style={{ fontWeight: 700, textDecoration: "none" }}>
+    <nav className="app-nav">
+      <div className="nav-left">
+        <Link href="/dashboard" className="nav-brand">
           Learn Our Favs
         </Link>
-        <Link href="/bands" className="muted" style={{ textDecoration: "none" }}>
+        <Link href="/bands" className="nav-link">
           Bands
         </Link>
       </div>
-      <div className="row" style={{ gap: 10 }}>
-        <span className="muted">{displayName}</span>
+      <div className="nav-right">
+        {avatarUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img className="nav-avatar" src={avatarUrl} alt={firstName} />
+        )}
+        <span className="nav-name">{firstName}</span>
         <form action="/auth/signout" method="post">
-          <button className="secondary" type="submit">Sign out</button>
+          <button className="nav-signout" type="submit">Sign out</button>
         </form>
       </div>
-    </div>
+    </nav>
   );
 }

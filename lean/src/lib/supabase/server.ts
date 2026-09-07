@@ -31,3 +31,33 @@ export async function createClient() {
     },
   );
 }
+
+/** Server client that writes cookies to a response object (for route handlers doing redirects). */
+export function createClientForResponse(
+  request: Request,
+  response: import("next/server").NextResponse,
+) {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          const cookieHeader = request.headers.get("cookie") ?? "";
+          return cookieHeader
+            .split("; ")
+            .filter(Boolean)
+            .map((c) => {
+              const [name, ...rest] = c.split("=");
+              return { name, value: rest.join("=") };
+            });
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options),
+          );
+        },
+      },
+    },
+  );
+}

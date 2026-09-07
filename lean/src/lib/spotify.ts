@@ -6,7 +6,7 @@ const API = "https://api.spotify.com/v1";
 const TOKEN_URL = "https://accounts.spotify.com/api/token";
 
 export const SPOTIFY_SCOPES =
-  "user-read-email user-top-read playlist-modify-public playlist-modify-private";
+  "user-read-email user-top-read user-read-recently-played playlist-modify-public playlist-modify-private";
 
 export type SpotifyTimeRange = "short_term" | "medium_term" | "long_term";
 
@@ -78,4 +78,24 @@ export async function getTopTracks(
   if (!res.ok) throw new Error(`Spotify top tracks failed: ${res.status}`);
   const data = await res.json();
   return data.items as SpotifyTrack[];
+}
+
+export async function getRecentTracks(
+  accessToken: string,
+  limit = 50,
+): Promise<SpotifyTrack[]> {
+  const res = await fetch(
+    `${API}/me/player/recently-played?limit=${limit}`,
+    { headers: { Authorization: `Bearer ${accessToken}` } },
+  );
+  if (!res.ok) throw new Error(`Spotify recent tracks failed: ${res.status}`);
+  const data = await res.json();
+  const seen = new Set<string>();
+  return (data.items as { track: SpotifyTrack }[])
+    .map((i) => i.track)
+    .filter((t) => {
+      if (!t?.id || seen.has(t.id)) return false;
+      seen.add(t.id);
+      return true;
+    });
 }

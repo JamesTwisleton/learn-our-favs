@@ -19,7 +19,10 @@ port = 54323
 [auth]
 enabled = true
 site_url = "http://127.0.0.1:3000"
-additional_redirect_urls = ["http://127.0.0.1:3000/auth/callback"]
+additional_redirect_urls = [
+  "http://127.0.0.1:3000/auth/callback",
+  "http://localhost:3000/auth/callback",
+]
 jwt_expiry = 3600
 enable_signup = true
 # ADR 0003: a second provider is attached only from an authenticated session.
@@ -32,7 +35,7 @@ enable_confirmations = false
 # Sign-in providers. Google/GitHub shown; add others as needed. Secrets come
 # from the shell environment so they are not committed.
 [auth.external.google]
-enabled = false
+enabled = true
 client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"
 secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"
 

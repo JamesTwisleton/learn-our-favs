@@ -10,21 +10,43 @@ export default async function LandingPage() {
 
   if (user) redirect("/dashboard");
 
+  const emojis = [
+    { char: "🎸", top: "12%", left: "8%", delay: "0s", duration: "22s" },
+    { char: "🎹", top: "20%", left: "82%", delay: "3s", duration: "26s" },
+    { char: "🥁", top: "70%", left: "12%", delay: "6s", duration: "24s" },
+    { char: "🎺", top: "78%", left: "78%", delay: "2s", duration: "28s" },
+    { char: "🎻", top: "40%", left: "5%", delay: "8s", duration: "30s" },
+    { char: "🎤", top: "55%", left: "88%", delay: "5s", duration: "23s" },
+    { char: "🎷", top: "8%", left: "45%", delay: "10s", duration: "27s" },
+    { char: "🪕", top: "85%", left: "45%", delay: "4s", duration: "25s" },
+  ];
+
   return (
-    <>
-      <h1>Learn Our Favs</h1>
-      <p className="muted">
-        Connect Spotify, tell us what you play, and form small bands around the
-        songs more than one of you already loves.
-      </p>
-      <div className="panel" style={{ marginTop: 24 }}>
-        <h2 style={{ marginTop: 0 }}>Sign in</h2>
-        <SignInButtons />
-        <p className="muted" style={{ fontSize: "0.85rem", marginBottom: 0 }}>
-          A second provider can be linked later, only from your account settings
-          — never automatically by email (ADR&nbsp;0003).
-        </p>
+    <div className="landing">
+      <div className="floating-emojis" aria-hidden="true">
+        {emojis.map((e, i) => (
+          <span
+            key={i}
+            className="floating-emoji"
+            style={{
+              top: e.top,
+              left: e.left,
+              animationDelay: e.delay,
+              animationDuration: e.duration,
+            }}
+          >
+            {e.char}
+          </span>
+        ))}
       </div>
-    </>
+      <div className="landing-inner">
+        <h1 className="landing-title">Learn Our Favs</h1>
+        <p className="landing-tagline">
+          Connect Spotify, tell us what you play, and form small bands around
+          the songs more than one of you already loves.
+        </p>
+        <SignInButtons />
+      </div>
+    </div>
   );
 }

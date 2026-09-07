@@ -66,9 +66,17 @@ export async function setProficiency(formData: FormData) {
   const instrumentId = String(formData.get("instrumentId"));
   const skillLevel = String(formData.get("skillLevel"));
 
-  await supabase.from("instrument_proficiency").upsert(
-    { user_id: user.id, instrument_id: instrumentId, skill_level: skillLevel },
-    { onConflict: "user_id,instrument_id" },
-  );
+  if (!skillLevel) {
+    await supabase
+      .from("instrument_proficiency")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("instrument_id", instrumentId);
+  } else {
+    await supabase.from("instrument_proficiency").upsert(
+      { user_id: user.id, instrument_id: instrumentId, skill_level: skillLevel },
+      { onConflict: "user_id,instrument_id" },
+    );
+  }
   revalidatePath("/dashboard");
 }

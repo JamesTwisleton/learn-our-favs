@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClientForResponse } from "@/lib/supabase/server";
 
 /** Supabase OAuth redirect target: exchanges the code for a session. */
 export async function GET(request: Request) {
@@ -8,9 +8,10 @@ export async function GET(request: Request) {
   const next = searchParams.get("next") ?? "/dashboard";
 
   if (code) {
-    const supabase = await createClient();
+    const response = NextResponse.redirect(`${origin}${next}`);
+    const supabase = createClientForResponse(request, response);
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(`${origin}${next}`);
+    if (!error) return response;
   }
   return NextResponse.redirect(`${origin}/?error=auth`);
 }
