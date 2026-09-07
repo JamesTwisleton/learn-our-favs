@@ -10,7 +10,9 @@ For the *why* behind each decision, read [`docs/`](./docs) — start with
 
 - Node 20+
 - [Supabase CLI](https://supabase.com/docs/guides/cli) (`supabase --version`)
-- Docker running (the CLI uses it for the local stack)
+- Docker running, with **≥ 4 GB of RAM** allocated to the engine (Docker Desktop
+  → Settings → Resources → Memory). The local stack is 13 containers; the
+  analytics container will get OOM-killed on the default ~1 GB.
 - A Spotify app: <https://developer.spotify.com/dashboard>
   - Add redirect URI `http://127.0.0.1:3000/auth/spotify/callback`
 
