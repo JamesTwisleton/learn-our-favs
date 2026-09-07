@@ -93,7 +93,9 @@ export async function searchTracks(
     type: "track",
     limit: String(clampedLimit),
   });
-  const res = await fetch(`${API}/search?${params}`, {
+  const url = `${API}/search?${params}`;
+  console.log("[searchTracks] url:", url, "limit type:", typeof clampedLimit, "value:", clampedLimit);
+  const res = await fetch(url, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   if (!res.ok) {
