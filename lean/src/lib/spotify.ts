@@ -87,10 +87,11 @@ export async function searchTracks(
 ): Promise<SpotifyTrack[]> {
   const trimmed = query.trim();
   if (!trimmed) return [];
+  const clampedLimit = Math.min(Math.max(1, Math.floor(limit)), 50);
   const params = new URLSearchParams({
     q: trimmed,
     type: "track",
-    limit: String(limit),
+    limit: String(clampedLimit),
   });
   const res = await fetch(`${API}/search?${params}`, {
     headers: { Authorization: `Bearer ${accessToken}` },

@@ -109,7 +109,7 @@ export default async function DashboardPage({
       if (tab === "top") tracks = await getTopTracks(accessToken, range, 30);
       else if (tab === "recent") tracks = await getRecentTracks(accessToken, 30);
       else if (tab === "search" && searchQuery)
-        tracks = await searchTracks(accessToken, searchQuery, 30);
+        tracks = await searchTracks(accessToken, searchQuery, 20);
     } catch (err) {
       tracksError = err instanceof Error ? err.message : "Unknown Spotify error";
       console.error("[dashboard] spotify fetch failed:", err);
