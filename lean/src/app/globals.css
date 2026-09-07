@@ -255,6 +255,27 @@ input[type="text"] { background: var(--bg); border: 1px solid var(--border); col
 }
 .tab-active:hover { color: #04210f; }
 
+/* Sub-tabs (time range under Top) */
+.subtabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+  padding: 4px 0;
+}
+.subtab {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.subtab:hover { color: var(--text); }
+.subtab-active {
+  color: var(--accent);
+  background: rgba(29, 185, 84, 0.1);
+}
+
 /* Tracks panel */
 .tracks-panel { padding: 4px 16px; }
 .song {

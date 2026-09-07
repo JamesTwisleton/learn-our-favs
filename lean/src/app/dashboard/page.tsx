@@ -2,27 +2,54 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSpotifyAccessToken } from "@/lib/spotify-server";
-import { getTopTracks, getRecentTracks, type SpotifyTrack } from "@/lib/spotify";
+import {
+  getTopTracks,
+  getRecentTracks,
+  searchTracks,
+  type SpotifyTimeRange,
+  type SpotifyTrack,
+} from "@/lib/spotify";
 import { Nav } from "@/components/Nav";
 import { InstrumentsSection } from "@/components/InstrumentsSection";
 import { toggleLike } from "./actions";
 
 export const dynamic = "force-dynamic";
 
-type TabKey = "top" | "recent" | "favourites";
+type TabKey = "top" | "recent" | "favourites" | "search";
+
+const RANGE_LABELS: Record<SpotifyTimeRange, string> = {
+  short_term: "Month",
+  medium_term: "6 Months",
+  long_term: "All Time",
+};
 
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string; edit_instruments?: string }>;
+  searchParams: Promise<{
+    tab?: string;
+    edit_instruments?: string;
+    range?: string;
+    q?: string;
+    refresh?: string;
+  }>;
 }) {
-  const { tab: tabParam, edit_instruments } = await searchParams;
+  const params = await searchParams;
   const tab: TabKey =
-    tabParam === "recent"
+    params.tab === "recent"
       ? "recent"
-      : tabParam === "favourites"
+      : params.tab === "favourites"
         ? "favourites"
-        : "top";
+        : params.tab === "search"
+          ? "search"
+          : "top";
+  const range: SpotifyTimeRange =
+    params.range === "short_term"
+      ? "short_term"
+      : params.range === "long_term"
+        ? "long_term"
+        : "medium_term";
+  const searchQuery = params.q ?? "";
 
   const supabase = await createClient();
   const {
@@ -73,13 +100,17 @@ export default async function DashboardPage({
   const accessToken = await getSpotifyAccessToken(user.id);
 
   const hasPickedInstruments = (proficiency ?? []).length > 0;
-  const showInstrumentEditor = !hasPickedInstruments || edit_instruments === "1";
+  const showInstrumentEditor = !hasPickedInstruments || params.edit_instruments === "1";
 
   let tracks: SpotifyTrack[] = [];
   if (accessToken) {
-    if (tab === "top") tracks = await getTopTracks(accessToken, "medium_term", 30);
+    if (tab === "top") tracks = await getTopTracks(accessToken, range, 30);
     else if (tab === "recent") tracks = await getRecentTracks(accessToken, 30);
+    else if (tab === "search" && searchQuery)
+      tracks = await searchTracks(accessToken, searchQuery, 30);
   }
+
+  const firstName = (profile?.display_name ?? "You").split(" ")[0];
 
   return (
     <>
@@ -88,102 +119,13 @@ export default async function DashboardPage({
         avatarUrl={profile?.avatar_url}
       />
 
-      <h1 className="page-title">
-        Welcome back, {(profile?.display_name ?? "You").split(" ")[0]}
-      </h1>
+      <h1 className="page-title">Welcome back, {firstName}</h1>
 
       <InstrumentsSection
         instruments={instruments ?? []}
         proficiency={proficiency ?? []}
         editing={showInstrumentEditor}
       />
-
-      <section className="section">
-        <div className="tracks-header">
-          <h2 className="section-title" style={{ margin: 0 }}>
-            Your tracks
-          </h2>
-          <div className="tabs">
-            <Link
-              href="/dashboard?tab=top"
-              className={`tab ${tab === "top" ? "tab-active" : ""}`}
-            >
-              Top
-            </Link>
-            <Link
-              href="/dashboard?tab=recent"
-              className={`tab ${tab === "recent" ? "tab-active" : ""}`}
-            >
-              Recent
-            </Link>
-            <Link
-              href="/dashboard?tab=favourites"
-              className={`tab ${tab === "favourites" ? "tab-active" : ""}`}
-            >
-              Favourited
-            </Link>
-          </div>
-        </div>
-        {tab === "favourites" ? (
-          <FavouritesList likedSongs={likedSongs} />
-        ) : !accessToken ? (
-          <div className="cta-card">
-            <p style={{ marginTop: 0 }}>
-              Connect Spotify to pull your listening history.
-            </p>
-            <a className="btn" href="/auth/spotify">
-              Connect Spotify
-            </a>
-          </div>
-        ) : tracks.length === 0 ? (
-          <div className="cta-card">
-            <p className="muted" style={{ margin: 0 }}>No tracks to show yet.</p>
-          </div>
-        ) : (
-          <div className="tracks-panel">
-            {tracks.map((t) => {
-              const liked = likedTrackIds.has(t.id);
-              return (
-                <div key={t.id} className="song">
-                  {t.album.images[0]?.url && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={t.album.images[0].url} alt="" />
-                  )}
-                  <div className="grow">
-                    <div className="song-title">{t.name}</div>
-                    <div className="muted song-artist">
-                      {t.artists.map((a) => a.name).join(", ")}
-                    </div>
-                  </div>
-                  <form action={toggleLike}>
-                    <input type="hidden" name="spotifyTrackId" value={t.id} />
-                    <input type="hidden" name="title" value={t.name} />
-                    <input
-                      type="hidden"
-                      name="artist"
-                      value={t.artists.map((a) => a.name).join(", ")}
-                    />
-                    <input type="hidden" name="isrc" value={t.external_ids?.isrc ?? ""} />
-                    <input
-                      type="hidden"
-                      name="albumArtUrl"
-                      value={t.album.images[0]?.url ?? ""}
-                    />
-                    <input type="hidden" name="liked" value={String(liked)} />
-                    <button
-                      type="submit"
-                      className={`like-btn ${liked ? "liked" : ""}`}
-                      aria-label={liked ? "Unlike" : "Like"}
-                    >
-                      {liked ? "♥" : "♡"}
-                    </button>
-                  </form>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </section>
 
       <section className="section">
         <h2 className="section-title">Your bands</h2>
@@ -220,7 +162,175 @@ export default async function DashboardPage({
           </>
         )}
       </section>
+
+      <section className="section">
+        <div className="tracks-header">
+          <h2 className="section-title" style={{ margin: 0 }}>
+            Your tracks
+          </h2>
+          <div className="tabs">
+            <Link
+              href="/dashboard?tab=top"
+              scroll={false}
+              className={`tab ${tab === "top" ? "tab-active" : ""}`}
+            >
+              Top
+            </Link>
+            <Link
+              href="/dashboard?tab=recent"
+              scroll={false}
+              className={`tab ${tab === "recent" ? "tab-active" : ""}`}
+            >
+              Recent
+            </Link>
+            <Link
+              href="/dashboard?tab=favourites"
+              scroll={false}
+              className={`tab ${tab === "favourites" ? "tab-active" : ""}`}
+            >
+              Favourited
+            </Link>
+            <Link
+              href="/dashboard?tab=search"
+              scroll={false}
+              className={`tab ${tab === "search" ? "tab-active" : ""}`}
+            >
+              Search
+            </Link>
+          </div>
+        </div>
+
+        {tab === "top" && accessToken && (
+          <div className="subtabs">
+            {(Object.keys(RANGE_LABELS) as SpotifyTimeRange[]).map((r) => (
+              <Link
+                key={r}
+                href={`/dashboard?tab=top&range=${r}`}
+                scroll={false}
+                className={`subtab ${range === r ? "subtab-active" : ""}`}
+              >
+                {RANGE_LABELS[r]}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {tab === "recent" && accessToken && (
+          <div
+            className="row"
+            style={{ justifyContent: "flex-end", marginBottom: 10 }}
+          >
+            <Link
+              href={`/dashboard?tab=recent&refresh=${Date.now()}`}
+              scroll={false}
+              className="muted-link"
+            >
+              ↻ Refresh
+            </Link>
+          </div>
+        )}
+
+        {tab === "search" && accessToken && (
+          <form
+            action="/dashboard"
+            method="get"
+            className="row"
+            style={{ marginBottom: 12 }}
+          >
+            <input type="hidden" name="tab" value="search" />
+            <input
+              type="text"
+              name="q"
+              defaultValue={searchQuery}
+              placeholder="Search Spotify for songs, artists…"
+              className="grow"
+              autoFocus
+            />
+            <button type="submit">Search</button>
+          </form>
+        )}
+
+        {tab === "favourites" ? (
+          <FavouritesList likedSongs={likedSongs} />
+        ) : !accessToken ? (
+          <div className="cta-card">
+            <p style={{ marginTop: 0 }}>
+              Connect Spotify to pull your listening history.
+            </p>
+            <a className="btn" href="/auth/spotify">
+              Connect Spotify
+            </a>
+          </div>
+        ) : tab === "search" && !searchQuery ? (
+          <div className="cta-card">
+            <p className="muted" style={{ margin: 0 }}>
+              Type above to search all of Spotify.
+            </p>
+          </div>
+        ) : tracks.length === 0 ? (
+          <div className="cta-card">
+            <p className="muted" style={{ margin: 0 }}>
+              {tab === "search" ? "No matches." : "No tracks to show yet."}
+            </p>
+          </div>
+        ) : (
+          <TrackList tracks={tracks} likedTrackIds={likedTrackIds} />
+        )}
+      </section>
     </>
+  );
+}
+
+function TrackList({
+  tracks,
+  likedTrackIds,
+}: {
+  tracks: SpotifyTrack[];
+  likedTrackIds: Set<string>;
+}) {
+  return (
+    <div className="tracks-panel">
+      {tracks.map((t) => {
+        const liked = likedTrackIds.has(t.id);
+        return (
+          <div key={t.id} className="song">
+            {t.album.images[0]?.url && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={t.album.images[0].url} alt="" />
+            )}
+            <div className="grow">
+              <div className="song-title">{t.name}</div>
+              <div className="muted song-artist">
+                {t.artists.map((a) => a.name).join(", ")}
+              </div>
+            </div>
+            <form action={toggleLike}>
+              <input type="hidden" name="spotifyTrackId" value={t.id} />
+              <input type="hidden" name="title" value={t.name} />
+              <input
+                type="hidden"
+                name="artist"
+                value={t.artists.map((a) => a.name).join(", ")}
+              />
+              <input type="hidden" name="isrc" value={t.external_ids?.isrc ?? ""} />
+              <input
+                type="hidden"
+                name="albumArtUrl"
+                value={t.album.images[0]?.url ?? ""}
+              />
+              <input type="hidden" name="liked" value={String(liked)} />
+              <button
+                type="submit"
+                className={`like-btn ${liked ? "liked" : ""}`}
+                aria-label={liked ? "Unlike" : "Like"}
+              >
+                {liked ? "♥" : "♡"}
+              </button>
+            </form>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -236,42 +346,46 @@ function FavouritesList({
     isrc: string | null;
   }[];
 }) {
-  if (likedSongs.length === 0) {
-    return (
-      <div className="cta-card">
-        <p className="muted" style={{ margin: 0 }}>
-          You haven&apos;t liked any songs yet.
-        </p>
-      </div>
-    );
-  }
   return (
-    <div className="tracks-panel">
-      {likedSongs.map((s) => (
-        <div key={s.song_id} className="song">
-          {s.album_art_url && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={s.album_art_url} alt="" />
-          )}
-          <div className="grow">
-            <div className="song-title">{s.title}</div>
-            <div className="muted song-artist">{s.artist}</div>
-          </div>
-          {s.spotify_track_id && (
-            <form action={toggleLike}>
-              <input type="hidden" name="spotifyTrackId" value={s.spotify_track_id} />
-              <input type="hidden" name="title" value={s.title} />
-              <input type="hidden" name="artist" value={s.artist} />
-              <input type="hidden" name="isrc" value={s.isrc ?? ""} />
-              <input type="hidden" name="albumArtUrl" value={s.album_art_url ?? ""} />
-              <input type="hidden" name="liked" value="true" />
-              <button type="submit" className="like-btn liked" aria-label="Unlike">
-                ♥
-              </button>
-            </form>
-          )}
+    <>
+      <p className="muted" style={{ marginTop: 0, marginBottom: 12 }}>
+        Favourite songs to start playing them with your bands!
+      </p>
+      {likedSongs.length === 0 ? (
+        <div className="cta-card">
+          <p className="muted" style={{ margin: 0 }}>
+            You haven&apos;t favourited any songs yet.
+          </p>
         </div>
-      ))}
-    </div>
+      ) : (
+        <div className="tracks-panel">
+          {likedSongs.map((s) => (
+            <div key={s.song_id} className="song">
+              {s.album_art_url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={s.album_art_url} alt="" />
+              )}
+              <div className="grow">
+                <div className="song-title">{s.title}</div>
+                <div className="muted song-artist">{s.artist}</div>
+              </div>
+              {s.spotify_track_id && (
+                <form action={toggleLike}>
+                  <input type="hidden" name="spotifyTrackId" value={s.spotify_track_id} />
+                  <input type="hidden" name="title" value={s.title} />
+                  <input type="hidden" name="artist" value={s.artist} />
+                  <input type="hidden" name="isrc" value={s.isrc ?? ""} />
+                  <input type="hidden" name="albumArtUrl" value={s.album_art_url ?? ""} />
+                  <input type="hidden" name="liked" value="true" />
+                  <button type="submit" className="like-btn liked" aria-label="Unlike">
+                    ♥
+                  </button>
+                </form>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </>
   );
 }
