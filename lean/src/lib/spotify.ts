@@ -87,14 +87,8 @@ export async function searchTracks(
 ): Promise<SpotifyTrack[]> {
   const trimmed = query.trim();
   if (!trimmed) return [];
-  const clampedLimit = Math.min(Math.max(1, Math.floor(limit)), 50);
-  const params = new URLSearchParams({
-    q: trimmed,
-    type: "track",
-    limit: String(clampedLimit),
-  });
-  const url = `${API}/search?${params}`;
-  console.log("[searchTracks] url:", url, "limit type:", typeof clampedLimit, "value:", clampedLimit);
+  const url = `${API}/search?q=${encodeURIComponent(trimmed)}&type=track`;
+  console.log("[searchTracks] url:", url, "limit param dropped:", limit);
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
