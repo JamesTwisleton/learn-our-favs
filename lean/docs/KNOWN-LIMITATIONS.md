@@ -34,7 +34,7 @@ version, ADR 0012). Bucket + RLS + a size/duration check are the next slice.
 
 ## 4. Cross-provider matching has no YouTube path yet
 
-`src/lib/matching.ts` is complete and tested, but nothing calls it — there is no
+[`src/lib/matching.ts`](../src/lib/matching.ts) is complete and tested, but nothing calls it — there is no
 "paste a YouTube link" UI. ADR 0010 (link-paste only, `videos.list` = 1 quota
 unit) is the plan.
 

@@ -10,7 +10,7 @@
 
 This is the **deliberately over-engineered** specification for Learn Our Favs.
 
-The product described here could be built by one person in a fortnight using Next.js and Supabase. That version is specified separately in `../../lean/learn-our-favs-prd-lean.md`, and it is the version intended for real users.
+The product described here could be built by one person in a fortnight using Next.js and Supabase. That version is specified separately in [`../../lean/learn-our-favs-prd-lean.md`](../../lean/learn-our-favs-prd-lean.md), and it is the version intended for real users.
 
 This version exists to exercise a specific set of engineering practices end to end — dual-cloud infrastructure-as-code, event-driven services, federated identity, orchestration, observability. Where a choice here is heavier than the problem demands, that is stated plainly rather than justified after the fact. **The tradeoff register at the end is the honest accounting.**
 
@@ -204,7 +204,7 @@ Unusual to specify, and deliberately included. This project is built with AI ass
 - **Running tally** by task category, in GBP.
 - **Upfront estimate** before implementation, compared against actuals afterwards.
 
-Estimates are in ADR 0016 and tracked in `docs/llm-cost-log.md`.
+Estimates are in [ADR 0016](./adr/0016-llm-build-cost-tracking.md) and tracked in [`docs/llm-cost-log.md`](./llm-cost-log.md).
 
 | Phase | Model tier | Est. cost (GBP) | Actual |
 |---|---|---|---|
@@ -293,11 +293,11 @@ Every ⬥ from draft 0.1 now has an ADR. Closing them was the point.
 
 | # | Decision | Resolution | ADR |
 |---|---|---|---|
-| 1 | Similarity threshold for the "is this the same song?" prompt | Auto ≥ 0.85, prompt 0.60–0.85, reject < 0.60 (normalised trigram similarity on title + artist) | 0013 |
-| 2 | Difficulty rubric — parked or user-rated? | User-rated in v1, aggregated on read | 0011 |
-| 3 | State inside both clouds or outside both? | Inside both — RDS + Spanner, dialect-compatible SQL | 0009 |
-| 4 | Media scope — cap, audio-only, or uncapped? | Uncapped with cost monitoring (the one divergence from lean) | 0012 |
-| 5 | Note authorship when a member leaves | Keep content, relabel author "Former member" | 0014 |
-| 6 | Log and telemetry retention | App logs 30 days; audit/security logs 90 days | 0015 |
-| 7 | LLM build-cost estimates per phase | Estimated (£280 total); tracked in `llm-cost-log.md` | 0016 |
-| 8 | Does YouTube ship in v1? | Yes, link-paste only — no API search | 0010 |
+| 1 | Similarity threshold for the "is this the same song?" prompt | Auto ≥ 0.85, prompt 0.60–0.85, reject < 0.60 (normalised trigram similarity on title + artist) | [0013](./adr/0013-cross-provider-match-thresholds.md) |
+| 2 | Difficulty rubric — parked or user-rated? | User-rated in v1, aggregated on read | [0011](./adr/0011-user-rated-difficulty.md) |
+| 3 | State inside both clouds or outside both? | Inside both — RDS + Spanner, dialect-compatible SQL | [0009](./adr/0009-state-inside-both-clouds.md) |
+| 4 | Media scope — cap, audio-only, or uncapped? | Uncapped with cost monitoring (the one divergence from lean) | [0012](./adr/0012-media-uncapped-with-cost-monitoring.md) |
+| 5 | Note authorship when a member leaves | Keep content, relabel author "Former member" | [0014](./adr/0014-note-authorship-on-member-departure.md) |
+| 6 | Log and telemetry retention | App logs 30 days; audit/security logs 90 days | [0015](./adr/0015-log-retention-periods.md) |
+| 7 | LLM build-cost estimates per phase | Estimated (£280 total); tracked in [`llm-cost-log.md`](./llm-cost-log.md) | [0016](./adr/0016-llm-build-cost-tracking.md) |
+| 8 | Does YouTube ship in v1? | Yes, link-paste only — no API search | [0010](./adr/0010-youtube-link-paste-only-v1.md) |

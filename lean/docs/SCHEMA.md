@@ -45,11 +45,11 @@ touches it. See [SPOTIFY-AUTH](./SPOTIFY-AUTH.md).
 
 ### `instruments`, `instrument_proficiency`
 Reference list (seeded) + per-user `(user, instrument) → skill_level`. Carried
-over from the prototype (`../../cloud-agnostic/docs/SALVAGE.md`).
+over from the prototype ([`../../cloud-agnostic/docs/SALVAGE.md`](../../cloud-agnostic/docs/SALVAGE.md)).
 
 ### `songs`
 Canonical song. `spotify_track_id`, `youtube_video_id`, and `isrc` are each
-`unique` (nulls allowed). Cross-provider matching (`src/lib/matching.ts`,
+`unique` (nulls allowed). Cross-provider matching ([`src/lib/matching.ts`](../src/lib/matching.ts),
 ADR 0013) decides whether a new provider reference is the same `songs` row.
 
 ### `song_likes`
@@ -75,9 +75,9 @@ never in a token. `joined_at` drives owner succession.
 `joinreq_decide`).
 
 ### `band_notes`
-`body jsonb` — a column, not a second datastore (lean PRD "what is dropped").
+`body jsonb` — a column, not a second datastore ([lean PRD](../learn-our-favs-prd-lean.md) "what is dropped").
 `updated_by` / `updated_by_label`: on member departure the user id is nulled and
-the label set to "Former member" (ADR 0014).
+the label set to "Former member" ([ADR 0014](../../cloud-agnostic/docs/adr/0014-note-authorship-on-member-departure.md)).
 
 ## Functions worth knowing
 

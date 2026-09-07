@@ -52,7 +52,7 @@ Secret Manager) and keeps only the returned reference in `spotify_links`
 `ingestion-worker` consumes `catalogue.ingest.requested`, pulls
 `GET /me/top/tracks`, respects Spotify's rate limits with backoff, upserts
 `songs` + `song_sources` (ISRC match where present, ADR 0013), and caches the
-raw response in Redis with the salvaged TTLs (24h / 3d / 7d, SALVAGE.md).
+raw response in Redis with the salvaged TTLs (24h / 3d / 7d, [SALVAGE.md](./SALVAGE.md)).
 
 ## 4. Liking a song and the band pool
 

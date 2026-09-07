@@ -113,12 +113,12 @@ Realistically this migration never happens, and that is fine. It exists so that 
 ## Open decisions ⬥
 
 Resolved in lockstep with the demonstration version — see
-`../cloud-agnostic/docs/adr/`. Summary as it applies here:
+[`../cloud-agnostic/docs/adr/`](../cloud-agnostic/docs/adr). Summary as it applies here:
 
 1. **Audio-only at launch, or video with a hard duration cap?** — Lean ships
    audio-only with a duration cap; video only on request. (The demonstration
    version runs uncapped with cost monitoring; that is the one deliberate
-   divergence between the two.)
+   divergence between the two — see [ADR 0012](../cloud-agnostic/docs/adr/0012-media-uncapped-with-cost-monitoring.md).)
 2. **YouTube in v1 at all?** — Link-paste only, no API search. [ADR 0010](../cloud-agnostic/docs/adr/0010-youtube-link-paste-only-v1.md).
 3. **Difficulty — parked, or user-rated?** — User-rated. [ADR 0011](../cloud-agnostic/docs/adr/0011-user-rated-difficulty.md).
 4. **Note authorship when a member leaves a band.** — Keep content, relabel the

@@ -21,7 +21,7 @@ backend Deployment's environment: `CLOUD_PROVIDER`, `DATABASE_URL`,
 
 1. **RDS ≠ Spanner.** The `database` module's Spanner impl accepts the same
    inputs but the schema must stay in the dialect intersection
-   (`../../db/migrations/README.md`). Not a drop-in swap — a real constraint.
+   ([`../../../db/migrations/README.md`](../../../db/migrations/README.md)). Not a drop-in swap — a real constraint.
 2. **Cognito ≠ Identity Platform.** The `identity` module hides different token
    formats and user-pool models behind one interface. "One account, many
    providers" is implemented twice.

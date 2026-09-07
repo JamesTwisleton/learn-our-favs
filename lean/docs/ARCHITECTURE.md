@@ -39,11 +39,11 @@ See [`docs/AUTHORISATION.md`](./AUTHORISATION.md).
 | Server-side slugs (ADR 0008) | `generate_band_slug()` — adjective-adjective-animal, retry on conflict. |
 | Pre-join visibility (PRD §4) | `band_public_summary()` + `band_instruments()` — security-definer, expose only name / count / instrument set. |
 | Difficulty is user-rated (ADR 0011) | `difficulty_ratings`, aggregated in the UI. No algorithmic score. |
-| Cross-provider matching (ADR 0013) | `src/lib/matching.ts` — normalise + trigram, same thresholds as the cloud-agnostic backend. |
+| Cross-provider matching (ADR 0013) | [`src/lib/matching.ts`](../src/lib/matching.ts) — normalise + trigram, same thresholds as the cloud-agnostic backend. |
 | Note authorship on departure (ADR 0014) | `band_notes.updated_by` nulled, `updated_by_label` set to "Former member". |
 
 ## What is deliberately missing (vs the cloud-agnostic version)
 
 Kubernetes, Terraform, Kafka, Spanner, MongoDB, OpenSearch, a separate Java
 service, Datadog. Each is replaced by a Supabase or Vercel primitive, or by
-nothing. The reasoning is in `learn-our-favs-prd-lean.md` → "What is dropped".
+nothing. The reasoning is in [`learn-our-favs-prd-lean.md`](../learn-our-favs-prd-lean.md) → "What is dropped".

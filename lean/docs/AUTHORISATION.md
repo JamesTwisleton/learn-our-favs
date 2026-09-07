@@ -45,7 +45,7 @@ create policy bands_update_privileged on public.bands
 
 RLS is enabled, and there is no policy that matches the `authenticated` role, so
 a normal query returns zero rows. Only the `service_role` key — used only in
-server route handlers (`/auth/spotify/callback`, `src/lib/spotify-server.ts`) —
+server route handlers (`/auth/spotify/callback`, [`src/lib/spotify-server.ts`](../src/lib/spotify-server.ts)) —
 bypasses RLS and can touch refresh tokens. The browser can never read them.
 
 ## The pre-join boundary (PRD §4)

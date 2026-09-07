@@ -27,11 +27,11 @@ lean version is not a dead end and the heavy version is not a different product.
 
 ### Everyone (30 min)
 
-1. `lean/learn-our-favs-prd-lean.md` — the short PRD. Product + stack + what was
+1. [`lean/learn-our-favs-prd-lean.md`](../lean/learn-our-favs-prd-lean.md) — the short PRD. Product + stack + what was
    dropped and why.
-2. `cloud-agnostic/docs/learn-our-favs-prd-demonstration.md` §12 — the tradeoff
+2. [`cloud-agnostic/docs/learn-our-favs-prd-demonstration.md`](../cloud-agnostic/docs/learn-our-favs-prd-demonstration.md) §12 — the tradeoff
    register. The honest "isn't this over-engineered? yes, here's what I'd ship".
-3. `cloud-agnostic/docs/adr/README.md` — the decision index.
+3. [`cloud-agnostic/docs/adr/README.md`](../cloud-agnostic/docs/adr/README.md) — the decision index.
 
 ### The decisions that matter in both versions
 
@@ -48,13 +48,13 @@ These are product and safety, not infrastructure fashion. Same behaviour in
 | Pool computed on read | 0007 | `band_pool()` function | `band_pool_v` view |
 | Server-side slugs | 0008 | `generate_band_slug()` | backend + curated word list |
 | User-rated difficulty, no algorithm | 0011 | `difficulty_ratings` | `difficulty_ratings` + `song_difficulty_v` |
-| Cross-provider matching thresholds | 0013 | `src/lib/matching.ts` | `catalogue/matching/*.java` — same algorithm |
+| Cross-provider matching thresholds | 0013 | [`src/lib/matching.ts`](../lean/src/lib/matching.ts) | [`catalogue/matching/`](../cloud-agnostic/backend/src/main/java/faves/learn/catalogue/matching) — same algorithm |
 | Note authorship → "Former member" on departure | 0014 | `band_notes.updated_by_label` | Mongo anonymisation routine |
 
 ### Then dive into whichever version you care about
 
-- **lean:** `lean/README.md` → `lean/docs/ARCHITECTURE.md` → `lean/docs/AUTHORISATION.md` → `lean/docs/REQUEST-FLOW.md`
-- **cloud-agnostic:** `cloud-agnostic/README.md` → `cloud-agnostic/docs/READ-IN-THIS-ORDER.md` → `cloud-agnostic/docs/SYSTEM-WALKTHROUGH.md`
+- **lean:** [`lean/README.md`](../lean/README.md) → [`lean/docs/ARCHITECTURE.md`](../lean/docs/ARCHITECTURE.md) → [`lean/docs/AUTHORISATION.md`](../lean/docs/AUTHORISATION.md) → [`lean/docs/REQUEST-FLOW.md`](../lean/docs/REQUEST-FLOW.md)
+- **cloud-agnostic:** [`cloud-agnostic/README.md`](../cloud-agnostic/README.md) → [`cloud-agnostic/docs/READ-IN-THIS-ORDER.md`](../cloud-agnostic/docs/READ-IN-THIS-ORDER.md) → [`cloud-agnostic/docs/SYSTEM-WALKTHROUGH.md`](../cloud-agnostic/docs/SYSTEM-WALKTHROUGH.md)
 
 ## Getting it running
 
@@ -83,5 +83,5 @@ cd ../frontend && npm install && npm run dev # :3001
 An earlier Next.js + Prisma + Fly.io version lived at the repo root and was
 removed on the `reimplementation` branch (cost). What was worth keeping —
 the Spotify client, the string-matching seed, the instrument taxonomy — is
-catalogued in `cloud-agnostic/docs/SALVAGE.md` and carried into both new
+catalogued in [`cloud-agnostic/docs/SALVAGE.md`](../cloud-agnostic/docs/SALVAGE.md) and carried into both new
 versions.

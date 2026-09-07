@@ -37,7 +37,7 @@ PostgreSQL dialects**:
 - Local development and CI run against plain PostgreSQL 16; a Spanner
   PostgreSQL-dialect emulator job runs in CI to catch dialect drift.
 - Some convenient PostgreSQL features are off the table. Documented in
-  `db/migrations/README.md`.
+  [`db/migrations/README.md`](../../db/migrations/README.md).
 - The migration runbook (`docs/runbooks/cloud-migration.md`, TBD) is a real
   export → provision → import → cut over → destroy sequence.
 - This is explicitly **not** what the lean version does — lean uses one managed

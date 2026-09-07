@@ -32,7 +32,7 @@ or Pub/Sub would be cheaper and easier on either cloud alone, but not both.
 Postgres, Kafka, OpenSearch and object storage are **shared**. Consequences that
 are designed for, not discovered:
 
-- Migrations must be backwards-compatible (`../../db/migrations/README.md`).
+- Migrations must be backwards-compatible ([`../../db/migrations/README.md`](../../db/migrations/README.md)).
 - `KAFKA_TOPIC_PREFIX` = branch name, so topics and consumer groups do not
   collide between previews.
 
