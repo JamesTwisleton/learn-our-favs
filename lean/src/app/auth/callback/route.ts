@@ -14,10 +14,19 @@ export async function GET(request: Request) {
   const forwardedProto = request.headers.get("x-forwarded-proto") ?? "https";
   const publicOrigin = forwardedHost ? `${forwardedProto}://${forwardedHost}` : origin;
 
+  console.log("[callback]", {
+    origin,
+    forwardedHost,
+    publicOrigin,
+    hasCode: Boolean(code),
+    cookieCount: (request.headers.get("cookie") ?? "").split("; ").filter(Boolean).length,
+  });
+
   if (code) {
     const response = NextResponse.redirect(`${publicOrigin}${next}`);
     const supabase = createClientForResponse(request, response);
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    console.log("[callback] exchange:", { user: data?.user?.email, error: error?.message });
     if (!error) return response;
   }
   return NextResponse.redirect(`${publicOrigin}/?error=auth`);

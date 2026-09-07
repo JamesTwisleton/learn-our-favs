@@ -103,11 +103,17 @@ export default async function DashboardPage({
   const showInstrumentEditor = !hasPickedInstruments || params.edit_instruments === "1";
 
   let tracks: SpotifyTrack[] = [];
+  let tracksError: string | null = null;
   if (accessToken) {
-    if (tab === "top") tracks = await getTopTracks(accessToken, range, 30);
-    else if (tab === "recent") tracks = await getRecentTracks(accessToken, 30);
-    else if (tab === "search" && searchQuery)
-      tracks = await searchTracks(accessToken, searchQuery, 30);
+    try {
+      if (tab === "top") tracks = await getTopTracks(accessToken, range, 30);
+      else if (tab === "recent") tracks = await getRecentTracks(accessToken, 30);
+      else if (tab === "search" && searchQuery)
+        tracks = await searchTracks(accessToken, searchQuery, 30);
+    } catch (err) {
+      tracksError = err instanceof Error ? err.message : "Unknown Spotify error";
+      console.error("[dashboard] spotify fetch failed:", err);
+    }
   }
 
   const firstName = (profile?.display_name ?? "You").split(" ")[0];
@@ -260,6 +266,12 @@ export default async function DashboardPage({
             <a className="btn" href="/auth/spotify">
               Connect Spotify
             </a>
+          </div>
+        ) : tracksError ? (
+          <div className="cta-card">
+            <p className="muted" style={{ margin: 0 }}>
+              Couldn&apos;t load from Spotify: {tracksError}
+            </p>
           </div>
         ) : tab === "search" && !searchQuery ? (
           <div className="cta-card">
