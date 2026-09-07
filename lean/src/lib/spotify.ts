@@ -85,12 +85,20 @@ export async function searchTracks(
   query: string,
   limit = 20,
 ): Promise<SpotifyTrack[]> {
-  if (!query.trim()) return [];
-  const res = await fetch(
-    `${API}/search?type=track&limit=${limit}&q=${encodeURIComponent(query)}`,
-    { headers: { Authorization: `Bearer ${accessToken}` } },
-  );
-  if (!res.ok) throw new Error(`Spotify search failed: ${res.status}`);
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+  const params = new URLSearchParams({
+    q: trimmed,
+    type: "track",
+    limit: String(limit),
+  });
+  const res = await fetch(`${API}/search?${params}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`Spotify search failed: ${res.status} ${body.slice(0, 200)}`);
+  }
   const data = await res.json();
   return (data.tracks?.items ?? []) as SpotifyTrack[];
 }
