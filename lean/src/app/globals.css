@@ -336,3 +336,156 @@ input[type="text"] { background: var(--bg); border: 1px solid var(--border); col
   color: var(--text);
   border-color: var(--muted);
 }
+
+/* Shared page background — used by dashboard, bands, band page */
+body {
+  background: radial-gradient(ellipse at top left, rgba(29, 185, 84, 0.06), transparent 50%),
+              radial-gradient(ellipse at bottom right, rgba(88, 101, 242, 0.05), transparent 50%),
+              var(--bg);
+  min-height: 100vh;
+}
+
+/* Stage — used for anon band preview pages (no nav) */
+.stage {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+.stage-inner {
+  width: 100%;
+  max-width: 720px;
+  animation: fadeInUp 0.6s ease-out;
+}
+.stage-inner.narrow { max-width: 560px; }
+
+/* CTA card */
+.cta-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+.cta-card p { margin: 0 0 14px; }
+
+/* Instrument summary (non-editing view) */
+.instrument-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+.instrument-summary-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(29, 185, 84, 0.08), var(--panel));
+  border: 1px solid rgba(29, 185, 84, 0.3);
+  border-radius: 10px;
+}
+.instrument-summary-emoji { font-size: 1.6rem; }
+.instrument-summary-name { font-weight: 500; font-size: 0.95rem; }
+.instrument-summary-level {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: capitalize;
+}
+.muted-link {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.muted-link:hover { color: var(--accent); }
+
+/* Bands grid */
+.bands-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.band-card {
+  display: block;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  text-decoration: none;
+  color: var(--text);
+  transition: border-color 0.2s ease, transform 0.15s ease, background 0.2s ease;
+}
+.band-card:hover {
+  border-color: rgba(29, 185, 84, 0.5);
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, rgba(29, 185, 84, 0.06), var(--panel));
+}
+.band-card-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.band-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+/* Band page */
+.band-header {
+  padding: 20px 0 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+  animation: fadeInUp 0.5s ease-out;
+}
+.band-name {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+  background: linear-gradient(135deg, #f2f2f2 0%, #a0a0a0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.band-meta {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Instrument pills used on band page */
+.band-instruments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.instrument-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.9rem;
+}
+.instrument-pill-emoji { font-size: 1.1rem; }
+.instrument-pill-count {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-left: 2px;
+}
+
+/* Track panel refresh (no outer border - looks cleaner in flow) */
+.tracks-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px 16px;
+}

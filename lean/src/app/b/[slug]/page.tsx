@@ -1,4 +1,5 @@
-import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Nav } from "@/components/Nav";
 import {
@@ -10,6 +11,13 @@ import {
 
 export const dynamic = "force-dynamic";
 
+type BandInstrument = {
+  name: string;
+  display_name: string;
+  icon_emoji: string;
+  player_count: number;
+};
+
 export default async function BandPage({
   params,
 }: {
@@ -20,7 +28,6 @@ export default async function BandPage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/");
 
   const { data: band } = await supabase
     .from("bands")
@@ -29,9 +36,39 @@ export default async function BandPage({
     .maybeSingle();
   if (!band) notFound();
 
+  const [summaryRes, { data: bandInstruments }] = await Promise.all([
+    supabase.rpc("band_public_summary", { band: band.id }).single(),
+    supabase.rpc("band_instruments", { band: band.id }),
+  ]);
+  const summary = summaryRes.data as { member_count: number } | null;
+  const memberCount = summary?.member_count ?? 0;
+
+  // Public preview for anonymous users.
+  if (!user) {
+    return (
+      <div className="stage">
+        <div className="stage-inner narrow">
+          <div className="band-header">
+            <h1 className="band-name">{band.name}</h1>
+            <p className="band-meta">
+              /b/{band.slug} · {memberCount} member{memberCount === 1 ? "" : "s"}
+            </p>
+          </div>
+          <BandInstrumentsPanel instruments={(bandInstruments ?? []) as BandInstrument[]} />
+          <div className="cta-card">
+            <p className="muted" style={{ marginTop: 0 }}>
+              Sign in to request to join and see the shared song pool.
+            </p>
+            <Link href="/" className="btn">Sign in</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name")
+    .select("display_name, avatar_url")
     .eq("id", user.id)
     .single();
 
@@ -43,32 +80,24 @@ export default async function BandPage({
     .maybeSingle();
 
   const isMember = Boolean(myMembership);
-  const isPrivileged = myMembership?.role === "owner" || myMembership?.role === "admin";
-
-  const [summaryRes, { data: bandInstruments }] = await Promise.all([
-    supabase.rpc("band_public_summary", { band: band.id }).single(),
-    supabase.rpc("band_instruments", { band: band.id }),
-  ]);
-  const summary = summaryRes.data as { member_count: number } | null;
+  const isPrivileged =
+    myMembership?.role === "owner" || myMembership?.role === "admin";
 
   return (
     <>
-      <Nav displayName={profile?.display_name ?? "You"} />
-      <h1>{band.name}</h1>
-      <p className="muted">
-        /b/{band.slug} · {summary?.member_count ?? 0} member
-        {summary?.member_count === 1 ? "" : "s"}
-      </p>
+      <Nav
+        displayName={profile?.display_name ?? "You"}
+        avatarUrl={profile?.avatar_url}
+      />
 
-      <h2>Instruments in this band</h2>
-      <div className="panel row" style={{ flexWrap: "wrap", gap: 8 }}>
-        {(bandInstruments ?? []).map((i: { name: string; display_name: string; icon_emoji: string; player_count: number }) => (
-          <span key={i.name} className="pill">
-            {i.icon_emoji} {i.display_name} × {i.player_count}
-          </span>
-        ))}
-        {(bandInstruments ?? []).length === 0 && <span className="muted">None declared yet</span>}
+      <div className="band-header">
+        <h1 className="band-name">{band.name}</h1>
+        <p className="band-meta">
+          /b/{band.slug} · {memberCount} member{memberCount === 1 ? "" : "s"}
+        </p>
       </div>
+
+      <BandInstrumentsPanel instruments={(bandInstruments ?? []) as BandInstrument[]} />
 
       {!isMember ? (
         <NonMemberView bandId={band.id} slug={band.slug} userId={user.id} />
@@ -81,6 +110,27 @@ export default async function BandPage({
         />
       )}
     </>
+  );
+}
+
+function BandInstrumentsPanel({ instruments }: { instruments: BandInstrument[] }) {
+  return (
+    <section className="section">
+      <h2 className="section-title">Instruments in this band</h2>
+      <div className="band-instruments">
+        {instruments.length === 0 ? (
+          <span className="muted">None declared yet</span>
+        ) : (
+          instruments.map((i) => (
+            <span key={i.name} className="instrument-pill">
+              <span className="instrument-pill-emoji">{i.icon_emoji}</span>
+              {i.display_name}
+              <span className="instrument-pill-count">×{i.player_count}</span>
+            </span>
+          ))
+        )}
+      </div>
+    </section>
   );
 }
 
