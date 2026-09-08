@@ -53,8 +53,20 @@ export function createClientForResponse(
             });
         },
         setAll(cookiesToSet) {
+          console.log(
+            "[callback] setAll cookies:",
+            cookiesToSet.map((c) => ({
+              name: c.name,
+              hasValue: Boolean(c.value),
+              path: c.options?.path,
+              sameSite: c.options?.sameSite,
+              secure: c.options?.secure,
+              httpOnly: c.options?.httpOnly,
+              domain: c.options?.domain,
+            })),
+          );
           cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options),
+            response.cookies.set(name, value, { ...options, path: "/" }),
           );
         },
       },
