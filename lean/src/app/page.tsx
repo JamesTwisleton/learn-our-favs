@@ -46,6 +46,12 @@ export default async function LandingPage() {
           the songs more than one of you already loves.
         </p>
         <SignInButtons />
+        <div className="landing-demo-row">
+          <span className="landing-demo-or">or</span>
+          <form action="/auth/demo" method="post">
+            <button type="submit" className="demo-btn">Try the demo — no sign-in</button>
+          </form>
+        </div>
       </div>
     </div>
   );

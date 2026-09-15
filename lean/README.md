@@ -72,6 +72,14 @@ src/app/               App Router pages + server actions
 middleware.ts          refreshes the Supabase session cookie
 ```
 
+## Demo mode
+
+Deployed at <https://learn-our-favs.vercel.app> — click **Try the demo — no
+sign-in** on the landing page to enter as a shared demo account pre-loaded with
+bands, likes, instruments and pending requests. See
+[`docs/DEMO-MODE.md`](./docs/DEMO-MODE.md) for how it's wired up, the seeded
+content, and how to re-run the seed.
+
 ## Known limitations
 
 See [`docs/KNOWN-LIMITATIONS.md`](./docs/KNOWN-LIMITATIONS.md) — in particular,
