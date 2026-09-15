@@ -23,7 +23,8 @@ export async function addSongComment(formData: FormData) {
 
   await supabase
     .from("song_comments")
-    .insert({ band_id: bandId, song_id: songId, user_id: user.id, body });
+    .insert({ band_id: bandId, song_id: songId, user_id: user.id, body })
+    .throwOnError();
   revalidatePath(`/b/${slug}`);
 }
 
@@ -37,7 +38,11 @@ export async function deleteSongComment(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) throw new Error("not authenticated");
 
-  await supabase.from("song_comments").delete().eq("id", commentId);
+  await supabase
+    .from("song_comments")
+    .delete()
+    .eq("id", commentId)
+    .throwOnError();
   revalidatePath(`/b/${slug}`);
 }
 
@@ -70,7 +75,8 @@ export async function saveDifficultyRating(formData: FormData) {
         updated_at: new Date().toISOString(),
       },
       { onConflict: "user_id,song_id,instrument_id" },
-    );
+    )
+    .throwOnError();
   revalidatePath(`/b/${slug}`);
 }
 
@@ -117,15 +123,18 @@ export async function uploadRecording(formData: FormData) {
     });
   if (uploadErr) throw uploadErr;
 
-  await supabase.from("recordings").insert({
-    band_id: bandId,
-    song_id: songId,
-    user_id: user.id,
-    title,
-    storage_path: objectName,
-    mime_type: file.type || "audio/webm",
-    size_bytes: file.size,
-  });
+  await supabase
+    .from("recordings")
+    .insert({
+      band_id: bandId,
+      song_id: songId,
+      user_id: user.id,
+      title,
+      storage_path: objectName,
+      mime_type: file.type || "audio/webm",
+      size_bytes: file.size,
+    })
+    .throwOnError();
   revalidatePath(`/b/${slug}`);
 }
 
