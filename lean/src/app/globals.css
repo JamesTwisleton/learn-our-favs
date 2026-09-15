@@ -537,3 +537,80 @@ body {
   border-radius: 12px;
   padding: 4px 16px;
 }
+
+/* Per-song expandable block (band pool). */
+.song-details { border-bottom: 1px solid var(--border); }
+.song-details:last-child { border-bottom: 0; }
+.song-details > summary { list-style: none; cursor: pointer; }
+.song-details > summary::-webkit-details-marker { display: none; }
+.song-meta { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.song-expand {
+  padding: 12px 0 20px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.song-block h4 {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.small { font-size: 0.85rem; }
+
+/* Comments */
+.comment {
+  padding: 8px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.comment-head {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.link-btn {
+  background: transparent;
+  color: var(--muted);
+  padding: 0;
+  border: 0;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 400;
+}
+
+/* Ratings */
+.rating-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 4px 0;
+  flex-wrap: wrap;
+}
+.stars { color: #f5c518; letter-spacing: 2px; }
+.rating-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.rating-form select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+/* Recordings */
+.recording {
+  padding: 8px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+audio { filter: invert(0.9) hue-rotate(180deg); }

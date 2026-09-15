@@ -173,6 +173,104 @@ async function ensureBandNote(bandId, title, body, songId = null) {
     .throwOnError();
 }
 
+async function ensureSpotifyConnection(userId, refreshToken, scope) {
+  await sb
+    .from("spotify_connections")
+    .upsert(
+      { user_id: userId, refresh_token: refreshToken, scope, updated_at: new Date().toISOString() },
+      { onConflict: "user_id" },
+    )
+    .throwOnError();
+}
+
+async function ensureSongComment(bandId, songId, userId, body) {
+  // Comments have no natural unique key; dedupe by matching the exact body.
+  const existing = await sb
+    .from("song_comments")
+    .select("id")
+    .eq("band_id", bandId)
+    .eq("song_id", songId)
+    .eq("user_id", userId)
+    .eq("body", body)
+    .maybeSingle();
+  if (existing.data) return;
+  await sb
+    .from("song_comments")
+    .insert({ band_id: bandId, song_id: songId, user_id: userId, body })
+    .throwOnError();
+}
+
+async function ensureDifficultyRating(userId, songId, instrumentId, rating, note = null) {
+  await sb
+    .from("difficulty_ratings")
+    .upsert(
+      { user_id: userId, song_id: songId, instrument_id: instrumentId, rating, note, updated_at: new Date().toISOString() },
+      { onConflict: "user_id,song_id,instrument_id" },
+    )
+    .throwOnError();
+}
+
+// Generate a short (~2s) 440Hz sine WAV, ~ 32 KB, as a Uint8Array. Real audio
+// so the <audio> player has something to play in demos — no external files.
+function makeToneWav({ frequency = 440, seconds = 2, sampleRate = 8000 } = {}) {
+  const numSamples = Math.floor(sampleRate * seconds);
+  const dataSize = numSamples * 2; // 16-bit mono
+  const buf = new ArrayBuffer(44 + dataSize);
+  const dv = new DataView(buf);
+  const writeStr = (offset, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(offset + i, s.charCodeAt(i)); };
+  writeStr(0, "RIFF");
+  dv.setUint32(4, 36 + dataSize, true);
+  writeStr(8, "WAVE");
+  writeStr(12, "fmt ");
+  dv.setUint32(16, 16, true);           // PCM chunk size
+  dv.setUint16(20, 1, true);            // PCM format
+  dv.setUint16(22, 1, true);            // channels
+  dv.setUint32(24, sampleRate, true);
+  dv.setUint32(28, sampleRate * 2, true); // byte rate
+  dv.setUint16(32, 2, true);            // block align
+  dv.setUint16(34, 16, true);           // bits per sample
+  writeStr(36, "data");
+  dv.setUint32(40, dataSize, true);
+  const amplitude = 0.25 * 32767;
+  for (let i = 0; i < numSamples; i++) {
+    const s = Math.sin((2 * Math.PI * frequency * i) / sampleRate);
+    dv.setInt16(44 + i * 2, s * amplitude, true);
+  }
+  return new Uint8Array(buf);
+}
+
+async function ensureRecording(bandId, songId, userId, title, freq) {
+  // Idempotent by title+band+song+user.
+  const existing = await sb
+    .from("recordings")
+    .select("id, storage_path")
+    .eq("band_id", bandId)
+    .eq("song_id", songId)
+    .eq("user_id", userId)
+    .eq("title", title)
+    .maybeSingle();
+  if (existing.data) return;
+  const objectName = `${bandId}/${crypto.randomUUID()}.wav`;
+  const bytes = makeToneWav({ frequency: freq, seconds: 2 });
+  const { error: upErr } = await sb.storage
+    .from("recordings")
+    .upload(objectName, bytes, { contentType: "audio/wav", upsert: false });
+  if (upErr) throw upErr;
+  await sb
+    .from("recordings")
+    .insert({
+      band_id: bandId,
+      song_id: songId,
+      user_id: userId,
+      title,
+      storage_path: objectName,
+      mime_type: "audio/wav",
+      size_bytes: bytes.byteLength,
+      duration_seconds: 2,
+    })
+    .throwOnError();
+}
+
 // ---- main -----------------------------------------------------------------
 const songsRaw = JSON.parse(readFileSync("/tmp/songs.json", "utf8"));
 console.log(`loaded ${songsRaw.length} tracks from /tmp/songs.json`);
@@ -227,11 +325,31 @@ for (const id of songIds.slice(0, 25)) await ensureLike(DEMO, id);
 // Rebecca — small handful so she shows overlap in her band.
 for (const id of songIds.slice(0, 8)) await ensureLike(REBECCA_ID, id);
 
+// 3b. Rebecca gets a couple of instruments so band 3's panel is fuller.
+await ensureProficiency(REBECCA_ID, instruments.piano, "beginner");
+await ensureProficiency(REBECCA_ID, instruments.ukulele, "beginner");
+
+// 3c. Spotify connection for demo — copy AJ's refresh token so /dashboard
+//     shows real top/recent/favourites for demo visitors.
+const { data: ajConn } = await sb
+  .from("spotify_connections")
+  .select("refresh_token, scope")
+  .eq("user_id", AJ_ID)
+  .maybeSingle();
+if (ajConn) {
+  await ensureSpotifyConnection(DEMO, ajConn.refresh_token, ajConn.scope);
+  console.log("copied AJ Spotify connection to demo user");
+} else {
+  console.log("no AJ Spotify connection yet — dashboard 'Your tracks' will be empty for demo");
+}
+
 // 5. Bands.
 const band1 = await ensureBand("Weekend Warriors", 3);      // AJ owner + full crew
 const band2 = await ensureBand("Bedroom Studio Club", 2);   // Milo owner, AJ + Sasha
 const band3 = await ensureBand("Piano Bar Nights", 2);      // Juno owner, AJ + Rebecca
 const band4 = await ensureBand("The Basement Session", 2);  // Otis owner; AJ NOT a member — for demo of join-request flow
+const band5 = await ensureBand("Living Room Jam", 2);       // demo is OWNER — approve/refuse demo happens here
+const band6 = await ensureBand("Studio 6 Collective", 2);   // demo is NOT a member and no pending — request-to-join demo
 
 await ensureMembership(band1.id, AJ_ID, "owner");
 await ensureMembership(band1.id, MILO, "member");
@@ -253,6 +371,17 @@ await ensureMembership(band4.id, OTIS, "owner");
 await ensureMembership(band4.id, SASHA, "member");
 await ensureMembership(band4.id, JUNO, "member");
 
+// Band 5 — demo is owner, so demo visitor sees owner-scoped UI + can
+// approve/refuse the pending Milo request.
+await ensureMembership(band5.id, DEMO, "owner");
+await ensureMembership(band5.id, OTIS, "member");
+await ensureMembership(band5.id, SASHA, "member");
+
+// Band 6 — demo NOT a member, so demo visitor can click "Request to join".
+await ensureMembership(band6.id, JUNO, "owner");
+await ensureMembership(band6.id, OTIS, "admin");
+await ensureMembership(band6.id, MILO, "member");
+
 // 6. Pending join_request from Sasha into AJ's owned "Weekend Warriors" —
 //    actually she's already a member. Use Otis, who isn't in band1.
 await ensurePendingJoinRequest(band1.id, OTIS);
@@ -261,6 +390,9 @@ await ensurePendingJoinRequest(band1.id, OTIS);
 await ensurePendingJoinRequest(band4.id, AJ_ID);
 // And a request FROM the demo user into band4 too, for the demo tour.
 await ensurePendingJoinRequest(band4.id, DEMO);
+// Milo requests to join demo's Living Room Jam — populates demo's
+// approve/refuse UI.
+await ensurePendingJoinRequest(band5.id, MILO);
 
 // 7. Band notes.
 const firstSongIds = songIds.slice(0, 3);
@@ -286,7 +418,52 @@ await ensureBandNote(
   { venue: "The Cellar", startTime: "8pm", requests: ["Waterfalls", "You Get What You Give"] },
 );
 
+// 8. Sample per-song comments, ratings, and recordings on the top few pool
+//    songs so the new expandable panels aren't empty on demo entry.
+const commentTargets = songIds.slice(0, 5);
+const commentSeeds = [
+  [MILO, "Nailing the intro riff after the third listen. Bar 12 is tricky."],
+  [SASHA, "The bass line drops out on the bridge — makes room for the vocal."],
+  [JUNO, "Try transposing to F# for a warmer piano tone."],
+  [OTIS, "Groove sits right at 92 BPM. Don't rush the pre-chorus."],
+  [DEMO, "This one's a candidate for the Saturday setlist."],
+];
+for (const songId of commentTargets) {
+  for (const [uid, body] of commentSeeds) {
+    await ensureSongComment(band1.id, songId, uid, body);
+  }
+}
+// A few in the demo-owned band too.
+for (const songId of songIds.slice(0, 3)) {
+  await ensureSongComment(band5.id, songId, DEMO, "Rehearsing this at Thursday's session.");
+  await ensureSongComment(band5.id, songId, OTIS, "I'll bring the acoustic for this one.");
+}
+
+// Difficulty ratings — a handful per song on guitar/piano/bass, so the
+// aggregate "difficulty" pill has data.
+const ratingSeeds = [
+  { user: MILO, inst: instruments.guitar, rating: 3, note: "Standard tuning, moves fast." },
+  { user: SASHA, inst: instruments.bass, rating: 2, note: "Repetitive line." },
+  { user: JUNO, inst: instruments.piano, rating: 4, note: "Left hand independence." },
+  { user: OTIS, inst: instruments.guitar, rating: 4, note: null },
+  { user: DEMO, inst: instruments.guitar, rating: 3, note: "Getting there." },
+];
+for (const songId of commentTargets) {
+  for (const r of ratingSeeds) {
+    await ensureDifficultyRating(r.user, songId, r.inst, r.rating, r.note);
+  }
+}
+
+// Placeholder recordings — 2s sine-wave WAVs so the audio player has something
+// to play. Different frequencies just so consecutive ones sound different.
+console.log("seeding placeholder recordings…");
+await ensureRecording(band1.id, songIds[0], MILO, "First run-through", 440);
+await ensureRecording(band1.id, songIds[0], SASHA, "Take with the bridge fix", 523);
+await ensureRecording(band1.id, songIds[1], JUNO, "Piano rehearsal loop", 349);
+await ensureRecording(band5.id, songIds[0], DEMO, "Demo take", 494);
+await ensureRecording(band5.id, songIds[2], OTIS, "Acoustic idea", 392);
+
 console.log("\nseed complete.");
 console.log("bands:");
-for (const b of [band1, band2, band3, band4])
+for (const b of [band1, band2, band3, band4, band5, band6])
   console.log(`  ${b.name}: /b/${b.slug}`);

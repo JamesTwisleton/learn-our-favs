@@ -66,36 +66,39 @@ Two files:
   which is why we need a client component instead of reusing
   `/auth/callback` (that route uses `exchangeCodeForSession`).
 
-### `POST /api/demo/reset` — daily reset
+### Reset — restore full baseline
 
 [`src/app/api/demo/reset/route.ts`](../src/app/api/demo/reset/route.ts).
 
-Gated by `Authorization: Bearer $CRON_SECRET`. Wipes the demo user's mutable
-state — `song_likes`, `difficulty_ratings`, `join_requests`,
-`instrument_proficiency` — then re-seeds:
+Exports both a `POST /api/demo/reset` handler (secret-gated) and a `resetDemo()`
+function that `/auth/demo` calls **on every entry** so a new visitor always
+starts from baseline, not from whatever the previous visitor left behind.
 
-- Baseline instruments (guitar intermediate, piano beginner)
-- Likes on the first 25 songs by creation order (matches the seeded top-tracks
-  order)
-- One pending join-request into **The Basement Session**, so a demo visitor
-  can see the "your request is pending" state without staging it themselves
+The reset:
 
-Scheduled daily at 04:00 UTC via [`vercel.json`](../vercel.json):
+1. Wipes demo user's `song_likes`, `difficulty_ratings`, `join_requests`,
+   `instrument_proficiency`, `song_comments`, `recordings` (plus the storage
+   objects for those recordings), and `band_memberships`.
+2. Deletes any stray bands demo created during a tour (owner-only, not in the
+   seeded whitelist, no remaining members after demo's membership is removed).
+3. Restores:
+   - Baseline instruments (guitar intermediate, piano beginner)
+   - Likes on the first 25 songs by creation order
+   - Memberships in the seeded bands (member/admin/owner as per the table above)
+   - Pending join request `demo → The Basement Session`
+   - Pending join request `Milo → Living Room Jam` (populates demo's owner-scoped approve/refuse UI)
+   - `spotify_connections` row for demo (copied from ajtwisleton's) if missing
 
-```json
-{ "crons": [ { "path": "/api/demo/reset", "schedule": "0 4 * * *" } ] }
-```
+**Triggers**
 
-(Vercel's Hobby plan caps crons at one run per day. If we ever go to Pro we can
-tighten this to hourly.)
+| Trigger | Frequency |
+|---|---|
+| `/auth/demo` entry | Every demo login (best-effort, non-blocking — if the reset errors, sign-in still proceeds) |
+| Vercel Cron `0 4 * * *` (daily @ 04:00 UTC) | Once daily. Belt-and-braces safety net — Vercel Hobby caps crons at one run per day; we'd bump to hourly on Pro |
+| Manual: `curl -X POST … -H "Authorization: Bearer $CRON_SECRET"` | On demand |
 
-Vercel injects `Authorization: Bearer $CRON_SECRET` automatically. To trigger
-manually:
-
-```bash
-curl -X POST https://learn-our-favs.vercel.app/api/demo/reset \
-  -H "Authorization: Bearer $CRON_SECRET"
-```
+Vercel injects `Authorization: Bearer $CRON_SECRET` on cron requests
+automatically.
 
 ### `scripts/seed-demo.mjs` — one-off seed
 
@@ -139,17 +142,40 @@ Fake user passwords are unrecoverable random UUIDs — they're only reachable vi
 Magdalena Bay, Andrew Bird, Khruangbin, etc.). Upserted on `spotify_track_id`,
 so re-running the seed is safe.
 
+### Per-song content (in bands)
+
+- **Comments** on the top 5 pool songs of Weekend Warriors (one per fake user)
+  and the top 3 of Living Room Jam
+- **Difficulty ratings** on the top 5 pool songs of Weekend Warriors (5 ratings
+  each, across guitar / bass / piano)
+- **Recordings** — 2-second placeholder tone WAVs on a few songs in Weekend
+  Warriors and Living Room Jam. Real audio (a 440Hz sine wave and friends) so
+  the `<audio>` player has something to play. Generated in-script; no binary
+  assets in the repo.
+
+### Spotify connection for demo
+
+Demo user's `spotify_connections` row copies ajtwisleton's `refresh_token`, so
+`/dashboard`'s **Top / Recent / Favourites / Search** tabs are populated
+against ajtwisleton's real Spotify account. Any demo visitor sees ajtwisleton's
+live listening. This is a deliberate trade — the alternative was mocking the
+Spotify API for the demo user, which meant maintaining a separate code path.
+
 ### Bands
 
-| Band | Threshold | Members | Owner | ajtwisleton |
+| Band | Threshold | Members | Owner | demo user's role |
 |---|---|---|---|---|
-| **Weekend Warriors** | 3 | 5 (aj, Milo, Sasha, Juno, demo) | ajtwisleton | Owner |
-| **Bedroom Studio Club** | 2 | 4 (Milo, aj, Sasha, demo) | Milo | Member |
+| **Weekend Warriors** | 3 | 5 (aj, Milo, Sasha, Juno, demo) | ajtwisleton | Member |
+| **Bedroom Studio Club** | 2 | 4 (Milo, aj, Sasha, demo) | Milo | Admin |
 | **Piano Bar Nights** | 2 | 4 (Juno, aj, Rebecca, demo) | Juno | Member |
 | **The Basement Session** | 2 | 3 (Otis, Sasha, Juno) | Otis | Not a member — has a pending request |
+| **Living Room Jam** | 2 | 3 (demo, Otis, Sasha) | **demo** | Owner |
+| **Studio 6 Collective** | 2 | 3 (Juno, Otis, Milo) | Juno | Not a member — no pending request (click "Request to join" to demo the flow) |
 
 Overlap patterns are chosen so the pool at each band's threshold is non-empty
-but not the full song list.
+but not the full song list. The band roster covers every role the demo user
+might have (owner, admin, member, non-member-with-pending, non-member-no-pending)
+so every UI state is reachable in a tour.
 
 ### Pending join requests
 

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { resetDemo } from "@/app/api/demo/reset/route";
 
 const DEMO_EMAIL = "demo@learn-our-favs.app";
 
@@ -18,6 +19,17 @@ export async function POST(request: Request) {
   const forwardedProto = request.headers.get("x-forwarded-proto") ?? "https";
   const { origin } = new URL(request.url);
   const publicOrigin = forwardedHost ? `${forwardedProto}://${forwardedHost}` : origin;
+
+  // Reset the demo account to its baseline on every entry so a new visitor
+  // never inherits the previous visitor's mid-tour mutations. Best-effort —
+  // if the reset fails we still let the sign-in proceed (worse UX than a
+  // reset, but better than blocking the demo).
+  try {
+    await resetDemo();
+  } catch (err) {
+    console.error("[demo] pre-login reset failed (continuing):", err);
+  }
+
   // Supabase's verify endpoint uses implicit-flow URL fragments for magic-link,
   // so we land on a client-side page that sets the session and then goes to
   // /dashboard. See src/app/auth/demo-complete/page.tsx.
