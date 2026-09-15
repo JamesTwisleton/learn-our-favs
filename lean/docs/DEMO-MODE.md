@@ -30,24 +30,43 @@ beats a bespoke read-only mode.
 
 ## The pieces
 
-### `POST /auth/demo` — auto-login
+### `POST /auth/demo` → verify → `/auth/demo-complete`
 
-[`src/app/auth/demo/route.ts`](../src/app/auth/demo/route.ts).
+Two files:
+- [`src/app/auth/demo/route.ts`](../src/app/auth/demo/route.ts) — POST handler.
+- [`src/app/auth/demo-complete/page.tsx`](../src/app/auth/demo-complete/page.tsx) — client-side session setter.
 
-Uses the service-role Supabase admin client to generate a magic-link for
-`demo@learn-our-favs.app` (`auth.admin.generateLink({ type: "magiclink" })`),
-then 303s the browser to the returned `action_link`. Supabase's `/auth/v1/verify`
-endpoint sets the session cookie and redirects to
-`${publicOrigin}/auth/callback?next=/dashboard`, which is the same callback
-Google sign-in uses.
+**Flow**
 
-No client-side JS, no interstitial. The visitor sees one redirect chain.
+1. Landing form POSTs to `/auth/demo`.
+2. That route hits Supabase Auth admin REST
+   (`POST /auth/v1/admin/generate_link`, `type: "magiclink"`) with
+   `redirect_to = ${publicOrigin}/auth/demo-complete`, then 303s the browser
+   to the returned `action_link`.
+3. Supabase's `/auth/v1/verify` verifies the token and 302s the browser to
+   `/auth/demo-complete#access_token=…&refresh_token=…` (implicit flow — the
+   session tokens are in the **URL fragment**, not the query string, and are
+   invisible to the server).
+4. The `demo-complete` client component parses `window.location.hash`, calls
+   `supabase.auth.setSession({ access_token, refresh_token })` (which the ssr
+   browser client persists as cookies), then `window.location.replace('/dashboard')`.
+5. `/dashboard` renders as the signed-in demo user.
 
-The demo user's redirect target must be in the project's `uri_allow_list`
-(Supabase dashboard → Authentication → URL Configuration). Prod already has
-`https://learn-our-favs.vercel.app/auth/callback` allowlisted.
+**Gotchas discovered building this**
 
-### `POST /api/demo/reset` — hourly reset
+- The REST endpoint wants `redirect_to` at the **top level** of the body, not
+  inside `options`. supabase-js sets `options.redirectTo` which is silently
+  dropped — the response falls back to the project's `site_url`. This is why
+  the demo route uses `fetch` directly instead of `admin.generateLink`.
+- The redirect target must be in the project's `uri_allow_list` (Supabase
+  dashboard → Authentication → URL Configuration). Prod is configured with
+  `https://learn-our-favs.vercel.app/**` (wildcard) so any callback path
+  matches.
+- Magic-link verify uses **implicit flow (fragment)**, not PKCE (`?code=`),
+  which is why we need a client component instead of reusing
+  `/auth/callback` (that route uses `exchangeCodeForSession`).
+
+### `POST /api/demo/reset` — daily reset
 
 [`src/app/api/demo/reset/route.ts`](../src/app/api/demo/reset/route.ts).
 
@@ -61,11 +80,14 @@ state — `song_likes`, `difficulty_ratings`, `join_requests`,
 - One pending join-request into **The Basement Session**, so a demo visitor
   can see the "your request is pending" state without staging it themselves
 
-Scheduled hourly via [`vercel.json`](../vercel.json):
+Scheduled daily at 04:00 UTC via [`vercel.json`](../vercel.json):
 
 ```json
-{ "crons": [ { "path": "/api/demo/reset", "schedule": "0 * * * *" } ] }
+{ "crons": [ { "path": "/api/demo/reset", "schedule": "0 4 * * *" } ] }
 ```
+
+(Vercel's Hobby plan caps crons at one run per day. If we ever go to Pro we can
+tighten this to hourly.)
 
 Vercel injects `Authorization: Bearer $CRON_SECRET` automatically. To trigger
 manually:
