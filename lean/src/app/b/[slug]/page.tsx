@@ -13,9 +13,9 @@ import {
   addSongComment,
   deleteSongComment,
   saveDifficultyRating,
-  uploadRecording,
   deleteRecording,
 } from "./song-actions";
+import { RecordingUploader } from "@/components/RecordingUploader";
 
 export const dynamic = "force-dynamic";
 
@@ -706,14 +706,7 @@ function SongRecordingsBlock({
           );
         })}
       </div>
-      <form action={uploadRecording} className="row" style={{ marginTop: 8, flexWrap: "wrap" }}>
-        <input type="hidden" name="bandId" value={bandId} />
-        <input type="hidden" name="songId" value={songId} />
-        <input type="hidden" name="slug" value={slug} />
-        <input type="text" name="title" placeholder="Take title" style={{ minWidth: 120 }} />
-        <input type="file" name="file" accept="audio/*" required />
-        <button type="submit" className="secondary">Upload take</button>
-      </form>
+      <RecordingUploader bandId={bandId} songId={songId} slug={slug} />
     </div>
   );
 }

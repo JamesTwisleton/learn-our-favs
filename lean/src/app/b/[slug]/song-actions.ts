@@ -81,47 +81,29 @@ export async function saveDifficultyRating(formData: FormData) {
 }
 
 // ---------------------------------------------------------------------------
-// Recordings. Upload uses the service-role client to bypass Storage RLS —
-// we verify band membership in code before writing, since File uploads via
-// Server Actions don't carry the user's Storage JWT the way a direct
-// browser-side upload would.
+// Recordings.
+//
+// Upload flow is client → signed URL → Supabase Storage direct, then this
+// action just inserts the DB row. The old "POST the File through a Server
+// Action" path was capped by Next's default 1 MB bodySizeLimit AND Vercel's
+// ~4.5 MB request-body cap — real audio takes exceed both. See
+// /api/recordings/sign-upload for the URL-minting side.
 // ---------------------------------------------------------------------------
-export async function uploadRecording(formData: FormData) {
+export async function insertRecordingMetadata(formData: FormData) {
   const bandId = String(formData.get("bandId"));
   const songId = String(formData.get("songId"));
   const slug = String(formData.get("slug"));
   const title = String(formData.get("title") ?? "").trim() || "Untitled take";
-  const file = formData.get("file") as File | null;
-  if (!file || file.size === 0) return;
-  if (file.size > 20 * 1024 * 1024) throw new Error("file too large (max 20 MB)");
+  const storagePath = String(formData.get("storagePath"));
+  const mimeType = String(formData.get("mimeType") ?? "audio/webm");
+  const sizeBytes = Number(formData.get("sizeBytes")) || null;
+  if (!bandId || !songId || !storagePath) throw new Error("missing fields");
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error("not authenticated");
-
-  // Verify membership (Storage upload bypasses RLS via service role).
-  const { data: membership } = await supabase
-    .from("band_memberships")
-    .select("role")
-    .eq("band_id", bandId)
-    .eq("user_id", user.id)
-    .maybeSingle();
-  if (!membership) throw new Error("not a member of this band");
-
-  const admin = createAdminClient();
-  const extMatch = /\.(webm|mp3|wav|m4a|ogg|aac|flac)$/i.exec(file.name);
-  const ext = extMatch ? extMatch[1].toLowerCase() : "webm";
-  const objectName = `${bandId}/${crypto.randomUUID()}.${ext}`;
-
-  const { error: uploadErr } = await admin.storage
-    .from("recordings")
-    .upload(objectName, file, {
-      contentType: file.type || "audio/webm",
-      upsert: false,
-    });
-  if (uploadErr) throw uploadErr;
 
   await supabase
     .from("recordings")
@@ -130,9 +112,9 @@ export async function uploadRecording(formData: FormData) {
       song_id: songId,
       user_id: user.id,
       title,
-      storage_path: objectName,
-      mime_type: file.type || "audio/webm",
-      size_bytes: file.size,
+      storage_path: storagePath,
+      mime_type: mimeType,
+      size_bytes: sizeBytes,
     })
     .throwOnError();
   revalidatePath(`/b/${slug}`);
